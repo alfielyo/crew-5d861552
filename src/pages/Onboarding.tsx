@@ -7,27 +7,34 @@ import PillOption from "@/components/PillOption";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const INTERESTS = [
-  "Running", "Fitness", "Food & Drink", "Travel", "Music", "Art",
-  "Film", "Books", "Wellness", "Coffee", "Sport", "Nature", "Tech", "Gaming", "Fashion",
+  "Reading", "Music", "Cooking", "Socialising", "Education", "Technology",
+  "Gaming", "Photography", "Fitness", "Self Improvement", "Politics", "Entrepreneurship",
 ];
 
-const PERSONALITY_QUESTIONS = [
-  { q: "How do you usually spend a Friday evening?", options: ["At home", "Small gathering", "Big night out", "Depends on mood"] },
-  { q: "What's your social energy like?", options: ["Introvert", "Ambivert", "Extrovert"] },
-  { q: "How spontaneous are you?", options: ["Very planned", "Mostly planned", "Goes with the flow", "Totally spontaneous"] },
-  { q: "What kind of run pace suits you?", options: ["Slow & chatty", "Moderate", "Fast & focused", "Mix it up"] },
-  { q: "What motivates you to join a group run?", options: ["Meet people", "Fitness", "Accountability", "All of the above"] },
-  { q: "Best way to describe your vibe?", options: ["Laid-back", "Energetic", "Thoughtful", "Adventurous"] },
-  { q: "How do you feel in new social situations?", options: ["Nervous but excited", "Totally at ease", "Takes a bit of time", "Depends"] },
-  { q: "What do you want from CREW?", options: ["Friends", "Fitness", "Fun", "All three"] },
+type PersonalityQuestion = {
+  q: string;
+  options: string[];
+  multi?: boolean;
+};
+
+const PERSONALITY_QUESTIONS: PersonalityQuestion[] = [
+  { q: "How do you usually connect with people?", options: ["I ask questions", "I share stories", "I listen"] },
+  { q: "What makes a conversation meaningful to you?", options: ["Talking about life", "Finding common ground", "Exploring big ideas"] },
+  { q: "I like to spend more time…", options: ["In the city", "In nature", "At home"] },
+  { q: "What kind of people do you like to meet?", options: ["Creatives", "Artists & Musicians", "Entrepreneurs & Founders", "Sporty types", "Techies"], multi: true },
+  { q: "Do you enjoy politically incorrect humour?", options: ["Yes", "No"] },
+  { q: "Do you enjoy discussing politics/news?", options: ["Yes", "No"] },
+  { q: "What is your training style?", options: ["Keep it casual", "I like to push myself", "I like to break the limits"] },
 ];
 
 const GENDER_OPTIONS = ["Man", "Woman", "Non-binary", "Prefer not to say", "Other"];
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-const TOTAL_STEPS = 14; // 1-5 profile + 6-13 personality + 14 final
+const TOTAL_STEPS = 13; // 1-4 profile + 5 interests + 6-12 personality + 13 final
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -42,7 +49,8 @@ const Onboarding = () => {
   const [dobMonth, setDobMonth] = useState("");
   const [dobYear, setDobYear] = useState("");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [personalityAnswers, setPersonalityAnswers] = useState<Record<string, string>>({});
+  const [personalityAnswers, setPersonalityAnswers] = useState<Record<string, string | string[]>>({});
+  const [saving, setSaving] = useState(false);
 
   const direction = 1;
 
@@ -58,19 +66,64 @@ const Onboarding = () => {
       case 2: return location.trim().length > 0;
       case 3: return gender !== "" && (gender !== "Other" || genderOther.trim().length > 0);
       case 4: return dobDay && dobMonth && dobYear;
-      case 5: return selectedInterests.length === 5;
+      case 5: return selectedInterests.length >= 3;
       default:
-        if (step >= 6 && step <= 13) return !!personalityAnswers[`q${step - 5}`];
+        if (step >= 6 && step <= 12) {
+          const qIndex = step - 6;
+          const question = PERSONALITY_QUESTIONS[qIndex];
+          const key = `q${qIndex + 1}`;
+          const answer = personalityAnswers[key];
+          if (question.multi) {
+            return Array.isArray(answer) && answer.length > 0;
+          }
+          return !!answer;
+        }
         return true;
+    }
+  };
+
+  const handleSaveAndFinish = async () => {
+    setSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Not logged in", description: "Please log in first.", variant: "destructive" });
+        navigate("/login");
+        return;
+      }
+
+      const { error } = await supabase.from("profiles").update({
+        full_name: fullName.trim(),
+        fitness_level: location.trim(),
+        phone: `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`,
+        personality_answers: {
+          gender: gender === "Other" ? genderOther : gender,
+          interests: selectedInterests,
+          ...personalityAnswers,
+        },
+        has_onboarded: true,
+      }).eq("id", user.id);
+
+      if (error) throw error;
+      navigate(`/onboarding/${TOTAL_STEPS}`);
+    } catch (err: any) {
+      toast({ title: "Error saving profile", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleNext = () => {
     if (step === TOTAL_STEPS) {
       navigate("/home");
-    } else {
-      navigate(`/onboarding/${step + 1}`);
+      return;
     }
+    // Save on last personality question (step 12)
+    if (step === 12) {
+      handleSaveAndFinish();
+      return;
+    }
+    navigate(`/onboarding/${step + 1}`);
   };
 
   const handleBack = () => {
@@ -80,8 +133,17 @@ const Onboarding = () => {
   const toggleInterest = (interest: string) => {
     setSelectedInterests((prev) => {
       if (prev.includes(interest)) return prev.filter((i) => i !== interest);
-      if (prev.length >= 5) return prev;
       return [...prev, interest];
+    });
+  };
+
+  const toggleMultiAnswer = (key: string, option: string) => {
+    setPersonalityAnswers((prev) => {
+      const current = (prev[key] as string[]) || [];
+      if (current.includes(option)) {
+        return { ...prev, [key]: current.filter((o) => o !== option) };
+      }
+      return { ...prev, [key]: [...current, option] };
     });
   };
 
@@ -104,11 +166,33 @@ const Onboarding = () => {
       );
     }
 
-    // Personality questions (steps 6-13)
-    if (step >= 6 && step <= 13) {
+    // Personality questions (steps 6-12)
+    if (step >= 6 && step <= 12) {
       const qIndex = step - 6;
       const question = PERSONALITY_QUESTIONS[qIndex];
-      const key = `q${step - 5}`;
+      const key = `q${qIndex + 1}`;
+
+      if (question.multi) {
+        const selected = (personalityAnswers[key] as string[]) || [];
+        return (
+          <div>
+            <h1 className="font-serif text-2xl">{question.q}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Select all that apply</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {question.options.map((option) => (
+                <PillOption
+                  key={option}
+                  selected={selected.includes(option)}
+                  onClick={() => toggleMultiAnswer(key, option)}
+                >
+                  {option}
+                </PillOption>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div>
           <h1 className="font-serif text-2xl">{question.q}</h1>
@@ -212,9 +296,9 @@ const Onboarding = () => {
       case 5:
         return (
           <div>
-            <h1 className="font-serif text-2xl">Pick 5 interests</h1>
+            <h1 className="font-serif text-2xl">Select at least 3 interests</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              {selectedInterests.length} / 5 selected
+              {selectedInterests.length} selected
             </p>
             <div className="mt-6 flex flex-wrap gap-2.5">
               {INTERESTS.map((interest) => (
@@ -264,10 +348,10 @@ const Onboarding = () => {
       <div className="mt-8">
         <Button
           onClick={handleNext}
-          disabled={!canContinue()}
+          disabled={!canContinue() || saving}
           className="w-full bg-primary py-6 text-base font-semibold text-primary-foreground disabled:opacity-40"
         >
-          {step === TOTAL_STEPS ? "Book This Week's Run" : "Continue"}
+          {saving ? "Saving…" : step === TOTAL_STEPS ? "Book This Week's Run" : "Continue"}
         </Button>
       </div>
     </PageShell>
