@@ -1,21 +1,35 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Consent = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleConsent = async () => {
     setLoading(true);
-    // TODO: UPDATE users SET consent_given = true, consent_given_at = now()
-    setTimeout(() => {
-      setLoading(false);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Please log in first", variant: "destructive" });
+      navigate("/login");
+      return;
+    }
+    const { error } = await supabase
+      .from("profiles")
+      .update({ has_consented: true })
+      .eq("id", user.id);
+    setLoading(false);
+    if (error) {
+      toast({ title: "Error saving consent", variant: "destructive" });
+    } else {
       navigate("/onboarding/1");
-    }, 500);
+    }
   };
 
   return (
