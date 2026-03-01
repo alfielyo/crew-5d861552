@@ -109,7 +109,7 @@ const LocationSearch = ({ value, onSelect, onChange }: LocationSearchProps) => {
       </div>
 
       {open && results.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full rounded-lg border border-border bg-popover shadow-lg overflow-hidden">
+        <ul className="absolute z-50 mt-1 w-full rounded-lg border border-border bg-popover overflow-hidden">
           {results.map((loc, i) => (
             <li
               key={i}
