@@ -286,7 +286,7 @@ const Onboarding = () => {
       case 3:
         return (
           <div>
-            <h1 className="font-serif text-2xl">How do you identify?</h1>
+            <h1 className="font-serif text-2xl">Select your gender?</h1>
             <div className="mt-8 flex flex-wrap gap-3">
               {GENDER_OPTIONS.map((g) => (
                 <PillOption key={g} selected={gender === g} onClick={() => setGender(g)}>
@@ -300,7 +300,7 @@ const Onboarding = () => {
                 value={genderOther}
                 onChange={(e) => setGenderOther(e.target.value)}
                 className="mt-4 border-border bg-secondary"
-                placeholder="How do you identify?"
+                placeholder="Select your gender."
               />
             )}
           </div>
