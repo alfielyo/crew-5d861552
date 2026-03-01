@@ -35,8 +35,8 @@ const Landing = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="mt-6 max-w-sm text-lg leading-relaxed text-muted-foreground">Run with strangers. Get matched. 
-Make friends. Show up.
+            className="mt-6 max-w-sm text-lg leading-relaxed text-muted-foreground">
+
 
           </motion.p>
         </div>
