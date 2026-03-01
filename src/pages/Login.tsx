@@ -45,16 +45,16 @@ const Login = () => {
   };
 
   return (
-    <PageShell className="flex flex-col px-5 py-6 sm:px-8 lg:mx-auto lg:max-w-md lg:py-12">
-      <button onClick={() => navigate("/")} className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+    <PageShell className="flex flex-col px-6 py-8">
+      <button onClick={() => navigate("/")} className="mb-8 flex items-center gap-2 text-sm text-muted-foreground">
         <ArrowLeft size={16} /> Back
       </button>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif">Welcome back</h1>
+        <h1 className="font-serif text-3xl">Welcome back</h1>
         <p className="mt-2 text-muted-foreground">Sign in to find your crew</p>
 
-        <form onSubmit={handleLogin} className="mt-6 space-y-4 sm:mt-8 sm:space-y-5">
+        <form onSubmit={handleLogin} className="mt-8 space-y-5">
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required

@@ -14,7 +14,7 @@ const PageShell = ({ children, className = "", withBottomNav = false }: PageShel
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className={`min-h-[100dvh] w-full ${withBottomNav ? "pb-20 lg:pb-0 lg:pl-20" : ""} ${className}`}
+      className={`min-h-screen ${withBottomNav ? "pb-24" : ""} ${className}`}
     >
       {children}
     </motion.div>

@@ -27,7 +27,7 @@ const PERSONALITY_QUESTIONS = [
 const GENDER_OPTIONS = ["Man", "Woman", "Non-binary", "Prefer not to say", "Other"];
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-const TOTAL_STEPS = 14;
+const TOTAL_STEPS = 14; // 1-5 profile + 6-13 personality + 14 final
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -86,6 +86,7 @@ const Onboarding = () => {
   };
 
   const renderStep = () => {
+    // Final step
     if (step === TOTAL_STEPS) {
       return (
         <div className="flex flex-1 flex-col items-center justify-center text-center">
@@ -97,20 +98,21 @@ const Onboarding = () => {
           >
             <Check size={36} className="text-accent-foreground" />
           </motion.div>
-          <h1 className="font-serif">You're all set{fullName ? `, ${fullName.split(" ")[0]}` : ""} 👋</h1>
+          <h1 className="font-serif text-3xl">You're all set{fullName ? `, ${fullName.split(" ")[0]}` : ""} 👋</h1>
           <p className="mt-3 text-muted-foreground">Time to find your crew.</p>
         </div>
       );
     }
 
+    // Personality questions (steps 6-13)
     if (step >= 6 && step <= 13) {
       const qIndex = step - 6;
       const question = PERSONALITY_QUESTIONS[qIndex];
       const key = `q${step - 5}`;
       return (
         <div>
-          <h2 className="font-serif">{question.q}</h2>
-          <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-8 sm:gap-3">
+          <h1 className="font-serif text-2xl">{question.q}</h1>
+          <div className="mt-8 flex flex-wrap gap-3">
             {question.options.map((option) => (
               <PillOption
                 key={option}
@@ -129,13 +131,13 @@ const Onboarding = () => {
       case 1:
         return (
           <div>
-            <h2 className="font-serif">What's your name?</h2>
+            <h1 className="font-serif text-2xl">What's your name?</h1>
             <p className="mt-2 text-sm text-muted-foreground">First and last name</p>
             <Input
               autoFocus
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="mt-5 border-border bg-secondary text-base sm:text-lg"
+              className="mt-6 border-border bg-secondary text-lg"
               placeholder="e.g. Alex Johnson"
             />
           </div>
@@ -143,13 +145,13 @@ const Onboarding = () => {
       case 2:
         return (
           <div>
-            <h2 className="font-serif">Where in London are you?</h2>
+            <h1 className="font-serif text-2xl">Where in London are you?</h1>
             <p className="mt-2 text-sm text-muted-foreground">Your neighbourhood or area</p>
             <Input
               autoFocus
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="mt-5 border-border bg-secondary text-base sm:text-lg"
+              className="mt-6 border-border bg-secondary text-lg"
               placeholder="e.g. Clapham"
             />
           </div>
@@ -157,8 +159,8 @@ const Onboarding = () => {
       case 3:
         return (
           <div>
-            <h2 className="font-serif">How do you identify?</h2>
-            <div className="mt-6 flex flex-wrap gap-2.5 sm:gap-3">
+            <h1 className="font-serif text-2xl">How do you identify?</h1>
+            <div className="mt-8 flex flex-wrap gap-3">
               {GENDER_OPTIONS.map((g) => (
                 <PillOption key={g} selected={gender === g} onClick={() => setGender(g)}>
                   {g}
@@ -179,25 +181,25 @@ const Onboarding = () => {
       case 4:
         return (
           <div>
-            <h2 className="font-serif">When were you born?</h2>
+            <h1 className="font-serif text-2xl">When were you born?</h1>
             <p className="mt-2 text-sm text-muted-foreground">You must be 18 or older</p>
-            <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="mt-6 grid grid-cols-3 gap-3">
               <select value={dobDay} onChange={(e) => setDobDay(e.target.value)}
-                className="min-h-[2.75rem] rounded-lg border border-border bg-secondary px-2 py-2.5 text-foreground sm:px-3 sm:py-3">
+                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground">
                 <option value="">Day</option>
                 {Array.from({ length: 31 }, (_, i) => (
                   <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
                 ))}
               </select>
               <select value={dobMonth} onChange={(e) => setDobMonth(e.target.value)}
-                className="min-h-[2.75rem] rounded-lg border border-border bg-secondary px-2 py-2.5 text-foreground sm:px-3 sm:py-3">
+                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground">
                 <option value="">Month</option>
                 {MONTHS.map((m, i) => (
                   <option key={m} value={String(i + 1)}>{m.slice(0, 3)}</option>
                 ))}
               </select>
               <select value={dobYear} onChange={(e) => setDobYear(e.target.value)}
-                className="min-h-[2.75rem] rounded-lg border border-border bg-secondary px-2 py-2.5 text-foreground sm:px-3 sm:py-3">
+                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground">
                 <option value="">Year</option>
                 {Array.from({ length: 60 }, (_, i) => {
                   const year = new Date().getFullYear() - 18 - i;
@@ -210,11 +212,11 @@ const Onboarding = () => {
       case 5:
         return (
           <div>
-            <h2 className="font-serif">Pick 5 interests</h2>
+            <h1 className="font-serif text-2xl">Pick 5 interests</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               {selectedInterests.length} / 5 selected
             </p>
-            <div className="mt-5 flex flex-wrap gap-2 sm:gap-2.5">
+            <div className="mt-6 flex flex-wrap gap-2.5">
               {INTERESTS.map((interest) => (
                 <PillOption
                   key={interest}
@@ -233,11 +235,11 @@ const Onboarding = () => {
   };
 
   return (
-    <PageShell className="flex flex-col px-5 py-6 sm:px-8 lg:mx-auto lg:max-w-lg lg:py-10">
+    <PageShell className="flex flex-col px-6 py-8">
       {step < TOTAL_STEPS && (
-        <div className="mb-5">
+        <div className="mb-6">
           {step > 1 && (
-            <button onClick={handleBack} className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+            <button onClick={handleBack} className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
               <ArrowLeft size={16} /> Back
             </button>
           )}
@@ -259,7 +261,7 @@ const Onboarding = () => {
         </motion.div>
       </AnimatePresence>
 
-      <div className="mt-6 sm:mt-8">
+      <div className="mt-8">
         <Button
           onClick={handleNext}
           disabled={!canContinue()}

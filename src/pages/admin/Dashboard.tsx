@@ -37,7 +37,7 @@ const Dashboard = () => {
   });
 
   const confirmedBookings = bookings?.filter((b) => b.status === "confirmed") ?? [];
-  const totalRevenue = confirmedBookings.length * 12;
+  const totalRevenue = confirmedBookings.length * 12; // £12 per booking placeholder
 
   const stats = [
     { label: "Total Runners", value: profileCount ?? 0, icon: Users },
@@ -47,43 +47,43 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-serif">Dashboard</h1>
+    <div className="space-y-8">
+      <h1 className="font-serif text-3xl">Dashboard</h1>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
           <Card key={s.label}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground sm:text-sm">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {s.label}
               </CardTitle>
               <s.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <p className="text-xl font-bold sm:text-2xl">{s.value}</p>
+              <p className="text-2xl font-bold">{s.value}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       <div>
-        <h2 className="mb-3 font-serif sm:mb-4">Upcoming Runs</h2>
+        <h2 className="font-serif text-xl mb-4">Upcoming Runs</h2>
         {upcomingRuns && upcomingRuns.length > 0 ? (
           <div className="space-y-2">
             {upcomingRuns.slice(0, 5).map((run) => (
-              <Card key={run.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{run.date} · {run.time}</p>
-                  <p className="truncate text-sm text-muted-foreground">{run.meeting_point}</p>
+              <Card key={run.id} className="p-4 flex items-center justify-between">
+                <div>
+                  <p className="font-medium">{run.date} · {run.time}</p>
+                  <p className="text-sm text-muted-foreground">{run.meeting_point}</p>
                 </div>
-                <span className="w-fit text-xs rounded bg-secondary px-2 py-1 text-secondary-foreground">
+                <span className="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">
                   {run.status}
                 </span>
               </Card>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No upcoming runs scheduled.</p>
+          <p className="text-muted-foreground text-sm">No upcoming runs scheduled.</p>
         )}
       </div>
     </div>

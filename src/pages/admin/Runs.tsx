@@ -111,21 +111,21 @@ const Runs = () => {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-serif">Runs</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="font-serif text-3xl">Runs</h1>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(defaultForm); } }}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1">
               <Plus className="h-4 w-4" /> New Run
             </Button>
           </DialogTrigger>
-          <DialogContent className="mx-4 max-w-lg">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingId ? "Edit Run" : "Create Run"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Date</Label>
                   <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
@@ -139,7 +139,7 @@ const Runs = () => {
                 <Label>Meeting Point</Label>
                 <Input value={form.meeting_point} onChange={(e) => setForm({ ...form, meeting_point: e.target.value })} required />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Capacity</Label>
                   <Input type="number" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })} required />
@@ -157,85 +157,50 @@ const Runs = () => {
         </Dialog>
       </div>
 
-      {/* Mobile: cards / Desktop: table */}
-      <div className="block lg:hidden space-y-3">
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
-        ) : runs && runs.length > 0 ? (
-          runs.map((run) => (
-            <Card key={run.id} className="p-3">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium">{run.date} · {run.time}</p>
-                  <p className="truncate text-sm text-muted-foreground">{run.meeting_point}</p>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>Cap: {run.capacity}</span>
-                    <span>£{(run.price_pence / 100).toFixed(2)}</span>
-                    <span className="rounded bg-secondary px-1.5 py-0.5 text-secondary-foreground">{run.status}</span>
-                  </div>
-                </div>
-                <div className="flex shrink-0 gap-1">
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openEdit(run)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => deleteMut.mutate(run.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))
-        ) : (
-          <p className="text-sm text-muted-foreground">No runs yet</p>
-        )}
-      </div>
-
-      <Card className="hidden lg:block">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Capacity</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-20"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
-              ) : runs && runs.length > 0 ? (
-                runs.map((run) => (
-                  <TableRow key={run.id}>
-                    <TableCell>{run.date}</TableCell>
-                    <TableCell>{run.time}</TableCell>
-                    <TableCell>{run.meeting_point}</TableCell>
-                    <TableCell>{run.capacity}</TableCell>
-                    <TableCell>£{(run.price_pence / 100).toFixed(2)}</TableCell>
-                    <TableCell>
-                      <span className="rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">{run.status}</span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(run)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => deleteMut.mutate(run.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">No runs yet</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Time</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Capacity</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-20"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
+            ) : runs && runs.length > 0 ? (
+              runs.map((run) => (
+                <TableRow key={run.id}>
+                  <TableCell>{run.date}</TableCell>
+                  <TableCell>{run.time}</TableCell>
+                  <TableCell>{run.meeting_point}</TableCell>
+                  <TableCell>{run.capacity}</TableCell>
+                  <TableCell>£{(run.price_pence / 100).toFixed(2)}</TableCell>
+                  <TableCell>
+                    <span className="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{run.status}</span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(run)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => deleteMut.mutate(run.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">No runs yet</TableCell></TableRow>
+            )}
+          </TableBody>
+        </Table>
       </Card>
     </div>
   );

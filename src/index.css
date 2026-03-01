@@ -1,4 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+Pro&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
@@ -11,26 +16,37 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
+
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
+
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
+
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
+
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 0%;
+
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
+
     --accent: 0 0% 90%;
     --accent-foreground: 0 0% 0%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
+
     --border: 0 0% 0%;
     --input: 0 0% 0%;
     --ring: 0 0% 0%;
+
     --radius: 0rem;
+
     --warning: 38 72% 52%;
     --admin: 268 30% 51%;
+
     --sidebar-background: 30 4% 11%;
     --sidebar-foreground: 0 0% 0%;
     --sidebar-primary: 0 0% 0%;
@@ -112,61 +128,19 @@
     @apply border-border;
   }
 
-  html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
-
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'DM Sans', system-ui, sans-serif;
-    font-size: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
-    line-height: 1.6;
-    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'DM Serif Display', serif;
     letter-spacing: -0.02em;
   }
-
-  h1 {
-    font-size: clamp(1.75rem, 1.5rem + 1vw, 3rem);
-    line-height: 1.15;
-  }
-
-  h2 {
-    font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.875rem);
-    line-height: 1.2;
-  }
-
-  h3 {
-    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.5rem);
-    line-height: 1.3;
-  }
-
-  /* Ensure minimum tap target size */
-  button, a, [role="button"], input, select, textarea {
-    min-height: 2.75rem; /* 44px */
-  }
-
-  /* Exception for inline/icon elements */
-  button[data-inline], a[data-inline], .inline-link {
-    min-height: auto;
-  }
 }
 
 @layer utilities {
   .tabular-nums {
     font-variant-numeric: tabular-nums;
-  }
-
-  /* Safe area padding for notched devices */
-  .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
-  }
-
-  .safe-top {
-    padding-top: env(safe-area-inset-top);
   }
 }

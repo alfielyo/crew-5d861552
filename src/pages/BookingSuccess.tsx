@@ -8,7 +8,7 @@ const BookingSuccess = () => {
   const navigate = useNavigate();
 
   return (
-    <PageShell className="flex flex-col items-center justify-center px-5 py-10 sm:px-8 lg:py-16">
+    <PageShell className="flex flex-col items-center justify-center px-6 py-12">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -24,9 +24,9 @@ const BookingSuccess = () => {
         transition={{ delay: 0.2 }}
         className="mt-6 text-center"
       >
-        <h1 className="font-serif">You're booked! 🏃</h1>
+        <h1 className="font-serif text-3xl">You're booked! 🏃</h1>
         <p className="mt-3 text-muted-foreground">See you in Battersea</p>
-        <p className="mt-5 text-sm text-muted-foreground">
+        <p className="mt-6 text-sm text-muted-foreground">
           Your crew will be matched 48 hours before the run. We'll email you when they're ready.
         </p>
       </motion.div>
@@ -34,7 +34,7 @@ const BookingSuccess = () => {
       <Button
         onClick={() => navigate("/home")}
         variant="ghost"
-        className="mt-10 text-primary hover:text-primary"
+        className="mt-12 text-primary hover:text-primary"
       >
         Back to Home
       </Button>
