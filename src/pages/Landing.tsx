@@ -36,8 +36,7 @@ const Landing = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
             className="mt-6 max-w-sm text-lg leading-relaxed text-muted-foreground">
-
-
+            Meet new people that actually fit.
           </motion.p>
         </div>
 

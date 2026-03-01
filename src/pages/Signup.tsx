@@ -52,7 +52,7 @@ const Signup = () => {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-serif text-3xl">Create your account</h1>
-        <p className="mt-2 text-muted-foreground">Join the crew in Battersea</p>
+        <p className="mt-2 text-muted-foreground">Only takes 2 minutes.</p>
 
         <form onSubmit={handleSignup} className="mt-8 space-y-5">
           <div>

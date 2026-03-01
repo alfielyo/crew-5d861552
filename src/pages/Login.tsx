@@ -53,7 +53,7 @@ const Login = () => {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-serif text-3xl">Welcome back</h1>
-        <p className="mt-2 text-muted-foreground">Sign in to find your crew</p>
+        <p className="mt-2 text-muted-foreground">Let's get you signed in.</p>
 
         <form onSubmit={handleLogin} className="mt-8 space-y-5">
           <div>
