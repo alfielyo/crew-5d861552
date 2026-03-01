@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
+import { validatePassword, getAuthErrorMessage } from "@/lib/auth-errors";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -23,8 +24,9 @@ const Signup = () => {
       toast({ title: "Passwords don't match", variant: "destructive" });
       return;
     }
-    if (password.length < 8 || !/\d/.test(password)) {
-      toast({ title: "Password must be 8+ characters with at least 1 number", variant: "destructive" });
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      toast({ title: passwordError, variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -35,7 +37,7 @@ const Signup = () => {
     });
     setLoading(false);
     if (error) {
-      toast({ title: error.message, variant: "destructive" });
+      toast({ title: getAuthErrorMessage(error.message), variant: "destructive" });
     } else {
       toast({ title: "Check your email to confirm your account" });
       navigate("/login");
@@ -61,7 +63,7 @@ const Signup = () => {
           <div>
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-              className="mt-1.5 border-border bg-secondary" placeholder="Min 8 chars, 1 number" />
+              className="mt-1.5 border-border bg-secondary" placeholder="Min 8 chars, upper+lower+number+special" />
           </div>
           <div>
             <Label htmlFor="confirmPassword">Confirm Password</Label>

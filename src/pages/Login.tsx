@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      toast({ title: error.message, variant: "destructive" });
+      toast({ title: getAuthErrorMessage(error.message), variant: "destructive" });
     } else {
       navigate("/home");
     }
@@ -38,7 +39,7 @@ const Login = () => {
       options: { emailRedirectTo: window.location.origin + "/home" },
     });
     if (error) {
-      toast({ title: error.message, variant: "destructive" });
+      toast({ title: getAuthErrorMessage(error.message), variant: "destructive" });
     } else {
       toast({ title: "Check your email for a sign-in link" });
     }

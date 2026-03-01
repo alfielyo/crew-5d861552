@@ -16,6 +16,7 @@ import BookingSuccess from "./pages/BookingSuccess";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/AdminLayout";
 import AdminGuard from "./components/AdminGuard";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/admin/Dashboard";
 import Runs from "./pages/admin/Runs";
 import Bookings from "./pages/admin/Bookings";
@@ -33,13 +34,13 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/consent" element={<Consent />} />
-          <Route path="/onboarding/:step" element={<Onboarding />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/my-run" element={<MyRun />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/booking/confirm" element={<BookingConfirm />} />
-          <Route path="/booking/success" element={<BookingSuccess />} />
+          <Route path="/consent" element={<ProtectedRoute><Consent /></ProtectedRoute>} />
+          <Route path="/onboarding/:step" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+          <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          <Route path="/my-run" element={<ProtectedRoute><MyRun /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/booking/confirm" element={<ProtectedRoute><BookingConfirm /></ProtectedRoute>} />
+          <Route path="/booking/success" element={<ProtectedRoute><BookingSuccess /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
             <Route index element={<Dashboard />} />
             <Route path="runs" element={<Runs />} />
