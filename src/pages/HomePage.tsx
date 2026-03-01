@@ -44,8 +44,7 @@ const HomePage = () => {
         className="mt-4">
 
         <h1 className="font-serif text-4xl leading-tight">
-          Find your Crew in{" "}
-          <span className="text-primary">Battersea</span>
+          Meet new people in
         </h1>
       </motion.div>
 
