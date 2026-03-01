@@ -16,7 +16,7 @@ const HomePage = () => {
     meetingPoint: "Battersea Park Bandstand",
     price: 12,
     spotsRemaining: 18,
-    capacity: 30,
+    capacity: 30
   };
 
   return (
@@ -26,8 +26,8 @@ const HomePage = () => {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-lg text-muted-foreground"
-        >
+          className="text-lg text-muted-foreground">
+
           Hey {userName},
         </motion.p>
         <button className="relative rounded-full p-2 hover:bg-secondary">
@@ -41,8 +41,8 @@ const HomePage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mt-4"
-      >
+        className="mt-4">
+
         <h1 className="font-serif text-4xl leading-tight">
           Find your Crew in{" "}
           <span className="text-primary">Battersea</span>
@@ -54,8 +54,8 @@ const HomePage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
-        className="mt-10"
-      >
+        className="mt-10">
+
         <div className="rounded-2xl border border-border bg-card p-5">
           <div className="flex items-start justify-between">
             <div>
@@ -77,8 +77,8 @@ const HomePage = () => {
             </div>
             <button
               onClick={() => navigate("/booking/confirm")}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
-            >
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary">
+
               <ArrowRight size={20} />
             </button>
           </div>
@@ -90,12 +90,12 @@ const HomePage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="mt-6"
-      >
+        className="mt-6">
+
         <Button
           onClick={() => navigate("/booking/confirm")}
-          className="w-full bg-primary py-6 text-base font-semibold text-primary-foreground"
-        >
+          className="w-full bg-primary py-6 text-base font-semibold text-primary-foreground">
+
           Book Your Spot — £{run.price}
         </Button>
       </motion.div>
@@ -105,19 +105,19 @@ const HomePage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.55 }}
-        className="mt-10"
-      >
+        className="mt-10">
+
         <h2 className="mb-3 font-serif text-lg">What to expect</h2>
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          Show up, meet your matched crew, and run together through Battersea Park. 
-          It's a social run, not a race — all paces welcome. 
-          Groups are matched based on personality, age, and interests so you'll click from the start.
+        <p className="text-sm leading-relaxed text-muted-foreground">Show up, meet your crew, and run together through Battersea Park. It's a social run, not a race — all paces welcome. Groups are matched based on personality, age, and interests so you'll click from the start.
+
+
+
         </p>
       </motion.div>
 
       <BottomNav />
-    </PageShell>
-  );
+    </PageShell>);
+
 };
 
 export default HomePage;
