@@ -126,16 +126,16 @@ const Groups = () => {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl">Groups</h1>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="font-serif">Groups</h1>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1">
               <Plus className="h-4 w-4" /> New Group
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="mx-4 max-w-lg">
             <DialogHeader>
               <DialogTitle>Create Group</DialogTitle>
             </DialogHeader>
@@ -173,7 +173,7 @@ const Groups = () => {
 
       {/* Add Member Dialog */}
       <Dialog open={!!addMemberGroupId} onOpenChange={(v) => { if (!v) { setAddMemberGroupId(null); setSelectedUserId(""); } }}>
-        <DialogContent>
+        <DialogContent className="mx-4 max-w-lg">
           <DialogHeader>
             <DialogTitle>Add Member</DialogTitle>
           </DialogHeader>
@@ -205,51 +205,51 @@ const Groups = () => {
       </Dialog>
 
       {isLoading ? (
-        <p className="text-muted-foreground text-sm">Loading…</p>
+        <p className="text-sm text-muted-foreground">Loading…</p>
       ) : groups && groups.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((g: any) => (
             <Card key={g.id}>
               <CardHeader className="flex flex-row items-start justify-between pb-2">
-                <div>
+                <div className="min-w-0 flex-1">
                   <CardTitle className="text-base">{g.name}</CardTitle>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {g.run_dates?.date} · {g.run_dates?.time}
                   </p>
                 </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => setAddMemberGroupId(g.id)}>
+                <div className="flex shrink-0 gap-1">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setAddMemberGroupId(g.id)}>
                     <UserPlus className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => deleteGroup.mutate(g.id)}>
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => deleteGroup.mutate(g.id)}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-muted-foreground mb-2">
+                <p className="mb-2 text-xs text-muted-foreground">
                   {g.run_group_members?.length ?? 0} members
                 </p>
                 {g.run_group_members?.length > 0 ? (
                   <ul className="space-y-1">
                     {g.run_group_members.map((m: any) => (
                       <li key={m.id} className="flex items-center justify-between text-sm">
-                        <span>{m.profiles?.full_name ?? "Unknown"}</span>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeMember.mutate(m.id)}>
+                        <span className="truncate">{m.profiles?.full_name ?? "Unknown"}</span>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMember.mutate(m.id)}>
                           <Trash2 className="h-3 w-3 text-muted-foreground" />
                         </Button>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-muted-foreground italic">No members yet</p>
+                  <p className="text-xs italic text-muted-foreground">No members yet</p>
                 )}
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground text-sm">No groups created yet.</p>
+        <p className="text-sm text-muted-foreground">No groups created yet.</p>
       )}
     </div>
   );

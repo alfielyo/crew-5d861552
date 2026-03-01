@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { User, MapPin, LogOut, Trash2 } from "lucide-react";
+import { MapPin, LogOut, Trash2 } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 const Profile = () => {
   const navigate = useNavigate();
 
-  // Mock data
   const user = {
     fullName: "Alfie Johnson",
     age: 27,
@@ -24,14 +23,14 @@ const Profile = () => {
   };
 
   return (
-    <PageShell withBottomNav className="px-6 py-8">
+    <PageShell withBottomNav className="px-5 py-6 sm:px-8 lg:mx-auto lg:max-w-2xl lg:py-10">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         {/* Avatar */}
         <div className="flex flex-col items-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
             {user.initials}
           </div>
-          <h1 className="mt-4 font-serif text-2xl">{user.fullName}</h1>
+          <h1 className="mt-4 font-serif">{user.fullName}</h1>
           <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin size={13} />
             <span>{user.city} · {user.age}</span>
@@ -40,7 +39,7 @@ const Profile = () => {
 
         {/* Interests */}
         <div className="mt-8">
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider">Interests</h2>
+          <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">Interests</h3>
           <div className="flex flex-wrap gap-2">
             {user.interests.map((interest) => (
               <span
@@ -55,14 +54,14 @@ const Profile = () => {
 
         {/* My Bookings */}
         <div className="mt-8">
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider">My Bookings</h2>
+          <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">My Bookings</h3>
           <div className="rounded-xl border border-border bg-card p-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-medium text-foreground">Sunday 2nd March</p>
                 <p className="text-sm text-muted-foreground">9:00am · Battersea Park</p>
               </div>
-              <span className="rounded-full bg-accent/20 px-3 py-1 text-xs font-medium text-accent">
+              <span className="w-fit rounded-full bg-accent/20 px-3 py-1 text-xs font-medium text-accent-foreground">
                 Confirmed
               </span>
             </div>
@@ -70,7 +69,7 @@ const Profile = () => {
         </div>
 
         {/* Account Actions */}
-        <div className="mt-12 space-y-3">
+        <div className="mt-10 space-y-3">
           <Button
             variant="ghost"
             onClick={handleSignOut}
