@@ -27,11 +27,21 @@ const Groups = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedRunDate, setSelectedRunDate] = useState("");
   const [groupName, setGroupName] = useState("");
+  const [addMemberGroupId, setAddMemberGroupId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState("");
 
   const { data: runDates } = useQuery({
     queryKey: ["admin-run-dates-for-groups"],
     queryFn: async () => {
       const { data } = await supabase.from("run_dates").select("*").order("date", { ascending: false });
+      return data ?? [];
+    },
+  });
+
+  const { data: profiles } = useQuery({
+    queryKey: ["admin-profiles-for-groups"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("id, full_name").order("full_name");
       return data ?? [];
     },
   });
@@ -82,6 +92,23 @@ const Groups = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-groups"] });
       toast.success("Group deleted");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const addMember = useMutation({
+    mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
+      const { error } = await supabase.from("run_group_members").insert({
+        run_group_id: groupId,
+        user_id: userId,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-groups"] });
+      setAddMemberGroupId(null);
+      setSelectedUserId("");
+      toast.success("Member added");
     },
     onError: (e) => toast.error(e.message),
   });
@@ -144,6 +171,39 @@ const Groups = () => {
         </Dialog>
       </div>
 
+      {/* Add Member Dialog */}
+      <Dialog open={!!addMemberGroupId} onOpenChange={(v) => { if (!v) { setAddMemberGroupId(null); setSelectedUserId(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Member</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Select Runner</Label>
+              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a runner" />
+                </SelectTrigger>
+                <SelectContent>
+                  {profiles?.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.full_name ?? "Unnamed"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              className="w-full"
+              disabled={!selectedUserId || addMember.isPending}
+              onClick={() => addMemberGroupId && addMember.mutate({ groupId: addMemberGroupId, userId: selectedUserId })}
+            >
+              Add
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {isLoading ? (
         <p className="text-muted-foreground text-sm">Loading…</p>
       ) : groups && groups.length > 0 ? (
@@ -157,9 +217,14 @@ const Groups = () => {
                     {g.run_dates?.date} · {g.run_dates?.time}
                   </p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => deleteGroup.mutate(g.id)}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => setAddMemberGroupId(g.id)}>
+                    <UserPlus className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => deleteGroup.mutate(g.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <p className="text-xs text-muted-foreground mb-2">

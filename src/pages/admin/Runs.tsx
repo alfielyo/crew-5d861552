@@ -60,10 +60,11 @@ const Runs = () => {
   const upsert = useMutation({
     mutationFn: async (values: RunForm & { id?: string }) => {
       if (values.id) {
+        const { id, ...updateData } = values;
         const { error } = await supabase
           .from("run_dates")
-          .update(values)
-          .eq("id", values.id);
+          .update(updateData)
+          .eq("id", id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("run_dates").insert(values);
