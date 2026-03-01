@@ -14,6 +14,11 @@ import Profile from "./pages/Profile";
 import BookingConfirm from "./pages/BookingConfirm";
 import BookingSuccess from "./pages/BookingSuccess";
 import NotFound from "./pages/NotFound";
+import AdminLayout from "./components/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import Runs from "./pages/admin/Runs";
+import Bookings from "./pages/admin/Bookings";
+import Groups from "./pages/admin/Groups";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +39,12 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/booking/confirm" element={<BookingConfirm />} />
           <Route path="/booking/success" element={<BookingSuccess />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="runs" element={<Runs />} />
+            <Route path="bookings" element={<Bookings />} />
+            <Route path="groups" element={<Groups />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
