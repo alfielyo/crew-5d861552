@@ -77,8 +77,10 @@ const LocationSearch = ({ value, onSelect, onChange }: LocationSearchProps) => {
   };
 
   const handleSelect = (loc: LocationResult) => {
+    clearTimeout(debounceRef.current);
     onSelect(loc);
     onChange(loc.displayName);
+    setResults([]);
     setOpen(false);
   };
 
