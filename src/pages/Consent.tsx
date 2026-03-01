@@ -11,7 +11,6 @@ const Consent = () => {
 
   const handleConsent = async () => {
     setLoading(true);
-    // TODO: UPDATE users SET consent_given = true, consent_given_at = now()
     setTimeout(() => {
       setLoading(false);
       navigate("/onboarding/1");
@@ -19,15 +18,15 @@ const Consent = () => {
   };
 
   return (
-    <PageShell className="flex flex-col px-6 py-12">
+    <PageShell className="flex flex-col px-5 py-10 sm:px-8 lg:mx-auto lg:max-w-lg lg:py-16">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-1 flex-col">
-        <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
+        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
           <Shield size={24} className="text-primary" />
         </div>
 
-        <h1 className="font-serif text-3xl">Your data, your call</h1>
+        <h1 className="font-serif">Your data, your call</h1>
 
-        <div className="mt-6 space-y-4 text-muted-foreground">
+        <div className="mt-5 space-y-4 text-muted-foreground">
           <p>To match you with the right crew, we'll collect:</p>
           <ul className="ml-1 list-inside list-disc space-y-1.5 text-sm">
             <li>Your name, date of birth & location</li>
@@ -35,7 +34,7 @@ const Consent = () => {
             <li>Interests & personality answers</li>
           </ul>
           <p className="text-sm">
-            This data is used <span className="text-foreground font-medium">solely for group matching</span>. 
+            This data is used <span className="font-medium text-foreground">solely for group matching</span>.
             It's never sold or shared with third parties.
           </p>
           <a href="#" className="inline-block text-sm text-primary hover:underline">
@@ -43,7 +42,7 @@ const Consent = () => {
           </a>
         </div>
 
-        <div className="mt-auto space-y-3 pt-12">
+        <div className="mt-auto space-y-3 pt-10">
           <Button
             onClick={handleConsent}
             disabled={loading}
