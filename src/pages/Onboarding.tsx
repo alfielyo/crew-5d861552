@@ -9,11 +9,20 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import LocationSearch, { type LocationResult } from "@/components/LocationSearch";
 
 const INTERESTS = [
-  "Reading", "Music", "Cooking", "Socialising", "Education", "Technology",
-  "Gaming", "Photography", "Fitness", "Self Improvement", "Politics", "Entrepreneurship",
+  "Reading",
+  "Music",
+  "Cooking",
+  "Socialising",
+  "Education",
+  "Technology",
+  "Gaming",
+  "Photography",
+  "Fitness",
+  "Self Improvement",
+  "Politics",
+  "Entrepreneurship",
 ];
 
 type PersonalityQuestion = {
@@ -24,16 +33,39 @@ type PersonalityQuestion = {
 
 const PERSONALITY_QUESTIONS: PersonalityQuestion[] = [
   { q: "How do you usually connect with people?", options: ["I ask questions", "I share stories", "I listen"] },
-  { q: "What makes a conversation meaningful to you?", options: ["Talking about life", "Finding common ground", "Exploring big ideas"] },
+  {
+    q: "What makes a conversation meaningful to you?",
+    options: ["Talking about life", "Finding common ground", "Exploring big ideas"],
+  },
   { q: "I like to spend more time…", options: ["In the city", "In nature", "At home"] },
-  { q: "What kind of people do you like to meet?", options: ["Creatives", "Artists & Musicians", "Entrepreneurs & Founders", "Sporty types", "Techies"], multi: true },
+  {
+    q: "What kind of people do you like to meet?",
+    options: ["Creatives", "Artists & Musicians", "Entrepreneurs & Founders", "Sporty types", "Techies"],
+    multi: true,
+  },
   { q: "Do you enjoy politically incorrect humour?", options: ["Yes", "No"] },
   { q: "Do you enjoy discussing politics/news?", options: ["Yes", "No"] },
-  { q: "What is your training style?", options: ["Keep it casual", "I like to push myself", "I like to break the limits"] },
+  {
+    q: "What is your training style?",
+    options: ["Keep it casual", "I like to push myself", "I like to break the limits"],
+  },
 ];
 
-const GENDER_OPTIONS = ["Man", "Woman", "Non-binary", "Prefer not to say", "Other"];
-const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const GENDER_OPTIONS = ["Man", "Woman"];
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 const TOTAL_STEPS = 13; // 1-4 profile + 5 interests + 6-12 personality + 13 final
 
@@ -44,7 +76,6 @@ const Onboarding = () => {
 
   const [fullName, setFullName] = useState("");
   const [location, setLocation] = useState("");
-  const [locationData, setLocationData] = useState<LocationResult | null>(null);
   const [gender, setGender] = useState("");
   const [genderOther, setGenderOther] = useState("");
   const [dobDay, setDobDay] = useState("");
@@ -64,11 +95,16 @@ const Onboarding = () => {
 
   const canContinue = () => {
     switch (step) {
-      case 1: return fullName.trim().length >= 2;
-      case 2: return locationData !== null;
-      case 3: return gender !== "" && (gender !== "Other" || genderOther.trim().length > 0);
-      case 4: return dobDay && dobMonth && dobYear;
-      case 5: return selectedInterests.length >= 3;
+      case 1:
+        return fullName.trim().length >= 2;
+      case 2:
+        return location.trim().length > 0;
+      case 3:
+        return gender !== "" && (gender !== "Other" || genderOther.trim().length > 0);
+      case 4:
+        return dobDay && dobMonth && dobYear;
+      case 5:
+        return selectedInterests.length >= 3;
       default:
         if (step >= 6 && step <= 12) {
           const qIndex = step - 6;
@@ -87,27 +123,29 @@ const Onboarding = () => {
   const handleSaveAndFinish = async () => {
     setSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         toast({ title: "Not logged in", description: "Please log in first.", variant: "destructive" });
         navigate("/login");
         return;
       }
 
-      const { error } = await supabase.from("profiles").update({
-        full_name: fullName.trim(),
-        fitness_level: locationData?.area || location.trim(),
-        location_city: locationData?.city || null,
-        location_country: locationData?.country || null,
-        location_area: locationData?.area || null,
-        phone: `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`,
-        personality_answers: {
-          gender: gender === "Other" ? genderOther : gender,
-          interests: selectedInterests,
-          ...personalityAnswers,
-        },
-        has_onboarded: true,
-      }).eq("id", user.id);
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: fullName.trim(),
+          fitness_level: location.trim(),
+          phone: `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`,
+          personality_answers: {
+            gender: gender === "Other" ? genderOther : gender,
+            interests: selectedInterests,
+            ...personalityAnswers,
+          },
+          has_onboarded: true,
+        })
+        .eq("id", user.id);
 
       if (error) throw error;
       navigate(`/onboarding/${TOTAL_STEPS}`);
@@ -234,23 +272,15 @@ const Onboarding = () => {
       case 2:
         return (
           <div>
-            <h1 className="font-serif text-2xl">Where are you based?</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Search for your city or area</p>
-            <div className="mt-6">
-              <LocationSearch
-                value={location}
-                onChange={(val) => {
-                  setLocation(val);
-                  if (locationData && val !== locationData.displayName) {
-                    setLocationData(null);
-                  }
-                }}
-                onSelect={(loc) => {
-                  setLocationData(loc);
-                  setLocation(loc.displayName);
-                }}
-              />
-            </div>
+            <h1 className="font-serif text-2xl">Where in London are you?</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Your neighbourhood or area</p>
+            <Input
+              autoFocus
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="mt-6 border-border bg-secondary text-lg"
+              placeholder="e.g. Clapham"
+            />
           </div>
         );
       case 3:
@@ -281,26 +311,43 @@ const Onboarding = () => {
             <h1 className="font-serif text-2xl">When were you born?</h1>
             <p className="mt-2 text-sm text-muted-foreground">You must be 18 or older</p>
             <div className="mt-6 grid grid-cols-3 gap-3">
-              <select value={dobDay} onChange={(e) => setDobDay(e.target.value)}
-                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground">
+              <select
+                value={dobDay}
+                onChange={(e) => setDobDay(e.target.value)}
+                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground"
+              >
                 <option value="">Day</option>
                 {Array.from({ length: 31 }, (_, i) => (
-                  <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
+                  <option key={i + 1} value={String(i + 1)}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-              <select value={dobMonth} onChange={(e) => setDobMonth(e.target.value)}
-                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground">
+              <select
+                value={dobMonth}
+                onChange={(e) => setDobMonth(e.target.value)}
+                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground"
+              >
                 <option value="">Month</option>
                 {MONTHS.map((m, i) => (
-                  <option key={m} value={String(i + 1)}>{m.slice(0, 3)}</option>
+                  <option key={m} value={String(i + 1)}>
+                    {m.slice(0, 3)}
+                  </option>
                 ))}
               </select>
-              <select value={dobYear} onChange={(e) => setDobYear(e.target.value)}
-                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground">
+              <select
+                value={dobYear}
+                onChange={(e) => setDobYear(e.target.value)}
+                className="rounded-lg border border-border bg-secondary px-3 py-3 text-foreground"
+              >
                 <option value="">Year</option>
                 {Array.from({ length: 60 }, (_, i) => {
                   const year = new Date().getFullYear() - 18 - i;
-                  return <option key={year} value={String(year)}>{year}</option>;
+                  return (
+                    <option key={year} value={String(year)}>
+                      {year}
+                    </option>
+                  );
                 })}
               </select>
             </div>
@@ -310,9 +357,7 @@ const Onboarding = () => {
         return (
           <div>
             <h1 className="font-serif text-2xl">Select at least 3 interests</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {selectedInterests.length} selected
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{selectedInterests.length} selected</p>
             <div className="mt-6 flex flex-wrap gap-2.5">
               {INTERESTS.map((interest) => (
                 <PillOption
