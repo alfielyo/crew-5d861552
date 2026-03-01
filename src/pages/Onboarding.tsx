@@ -241,7 +241,9 @@ const Onboarding = () => {
                 value={location}
                 onChange={(val) => {
                   setLocation(val);
-                  setLocationData(null);
+                  if (locationData && val !== locationData.displayName) {
+                    setLocationData(null);
+                  }
                 }}
                 onSelect={(loc) => {
                   setLocationData(loc);
