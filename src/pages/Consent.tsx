@@ -44,8 +44,7 @@ const Consent = () => {
         <div className="mt-6 space-y-4 text-muted-foreground">
           <p>To match you with the right crew, we'll collect:</p>
           <ul className="ml-1 list-inside list-disc space-y-1.5 text-sm">
-            <li>Your name, date of birth & location</li>
-            <li>Gender identity</li>
+            <li>Your name, gender, date of birth & location</li>
             <li>Interests & personality answers</li>
           </ul>
           <p className="text-sm">
