@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import LocationSearch, { type LocationResult } from "@/components/LocationSearch";
 
 const INTERESTS = [
   "Reading", "Music", "Cooking", "Socialising", "Education", "Technology",
@@ -43,6 +44,7 @@ const Onboarding = () => {
 
   const [fullName, setFullName] = useState("");
   const [location, setLocation] = useState("");
+  const [locationData, setLocationData] = useState<LocationResult | null>(null);
   const [gender, setGender] = useState("");
   const [genderOther, setGenderOther] = useState("");
   const [dobDay, setDobDay] = useState("");
@@ -63,7 +65,7 @@ const Onboarding = () => {
   const canContinue = () => {
     switch (step) {
       case 1: return fullName.trim().length >= 2;
-      case 2: return location.trim().length > 0;
+      case 2: return locationData !== null;
       case 3: return gender !== "" && (gender !== "Other" || genderOther.trim().length > 0);
       case 4: return dobDay && dobMonth && dobYear;
       case 5: return selectedInterests.length >= 3;
@@ -94,7 +96,10 @@ const Onboarding = () => {
 
       const { error } = await supabase.from("profiles").update({
         full_name: fullName.trim(),
-        fitness_level: location.trim(),
+        fitness_level: locationData?.area || location.trim(),
+        location_city: locationData?.city || null,
+        location_country: locationData?.country || null,
+        location_area: locationData?.area || null,
         phone: `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`,
         personality_answers: {
           gender: gender === "Other" ? genderOther : gender,
@@ -229,15 +234,21 @@ const Onboarding = () => {
       case 2:
         return (
           <div>
-            <h1 className="font-serif text-2xl">Where in London are you?</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Your neighbourhood or area</p>
-            <Input
-              autoFocus
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="mt-6 border-border bg-secondary text-lg"
-              placeholder="e.g. Clapham"
-            />
+            <h1 className="font-serif text-2xl">Where are you based?</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Search for your city or area</p>
+            <div className="mt-6">
+              <LocationSearch
+                value={location}
+                onChange={(val) => {
+                  setLocation(val);
+                  setLocationData(null);
+                }}
+                onSelect={(loc) => {
+                  setLocationData(loc);
+                  setLocation(loc.displayName);
+                }}
+              />
+            </div>
           </div>
         );
       case 3:

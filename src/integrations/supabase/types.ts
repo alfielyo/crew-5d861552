@@ -84,6 +84,9 @@ export type Database = {
           has_consented: boolean
           has_onboarded: boolean
           id: string
+          location_area: string | null
+          location_city: string | null
+          location_country: string | null
           personality_answers: Json | null
           phone: string | null
           updated_at: string
@@ -95,6 +98,9 @@ export type Database = {
           has_consented?: boolean
           has_onboarded?: boolean
           id: string
+          location_area?: string | null
+          location_city?: string | null
+          location_country?: string | null
           personality_answers?: Json | null
           phone?: string | null
           updated_at?: string
@@ -106,6 +112,9 @@ export type Database = {
           has_consented?: boolean
           has_onboarded?: boolean
           id?: string
+          location_area?: string | null
+          location_city?: string | null
+          location_country?: string | null
           personality_answers?: Json | null
           phone?: string | null
           updated_at?: string
