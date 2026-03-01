@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const tabs = [
   { to: "/home", icon: Home, label: "Home" },
-  { to: "/my-run", icon: Calendar, label: "My Run" },
+  { to: "/my-run", icon: Calendar, label: "Bookings" },
   { to: "/profile", icon: User, label: "Profile" },
 ];
 
