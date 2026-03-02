@@ -67,7 +67,8 @@ const BookingConfirm = () => {
         return;
       }
       if (data?.url) {
-        window.location.href = data.url;
+        window.open(data.url, '_blank');
+        setLoading(false);
       }
     } catch (err: any) {
       toast({ title: "Payment failed", description: err.message, variant: "destructive" });
