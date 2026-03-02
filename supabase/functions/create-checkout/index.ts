@@ -28,7 +28,7 @@ serve(async (req) => {
     const { run_date_id, discount_code } = await req.json();
     if (!run_date_id) throw new Error("run_date_id is required");
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripe = new Stripe(Deno.env.get("STRIPE_RESTRICTED_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
 

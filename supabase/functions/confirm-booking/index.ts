@@ -34,7 +34,7 @@ serve(async (req) => {
     const { session_id } = await req.json();
     if (!session_id) throw new Error("session_id is required");
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripe = new Stripe(Deno.env.get("STRIPE_RESTRICTED_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
 
