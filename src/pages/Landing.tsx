@@ -16,9 +16,9 @@ const Landing = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-4 text-sm font-medium uppercase tracking-widest text-muted-foreground">
+            className="mb-4 text-sm font-medium uppercase tracking-widest text-muted-foreground">EVERY WEEK · LONDON
 
-            Every week · Battersea, London
+
           </motion.p>
 
           <motion.h1
