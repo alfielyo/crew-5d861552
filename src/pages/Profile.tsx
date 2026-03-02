@@ -15,7 +15,7 @@ const Profile = () => {
     age: 27,
     city: "Battersea",
     interests: ["Running", "Coffee", "Music", "Travel", "Wellness"],
-    initials: "AJ",
+    initials: "AJ"
   };
 
   const handleSignOut = async () => {
@@ -40,22 +40,22 @@ const Profile = () => {
 
         {/* Interests */}
         <div className="mt-8">
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider">Interests</h2>
+          <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider font-sans">Interests</h2>
           <div className="flex flex-wrap gap-2">
-            {user.interests.map((interest) => (
-              <span
-                key={interest}
-                className="rounded-full border border-border bg-secondary px-3.5 py-1.5 text-sm text-foreground"
-              >
+            {user.interests.map((interest) =>
+            <span
+              key={interest}
+              className="rounded-full border border-border bg-secondary px-3.5 py-1.5 text-sm text-foreground">
+
                 {interest}
               </span>
-            ))}
+            )}
           </div>
         </div>
 
         {/* My Bookings */}
         <div className="mt-8">
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider">My Bookings</h2>
+          <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider font-sans">My Bookings</h2>
           <div className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -74,15 +74,15 @@ const Profile = () => {
           <Button
             variant="ghost"
             onClick={handleSignOut}
-            className="w-full justify-start gap-3 py-6 text-muted-foreground hover:text-foreground"
-          >
+            className="w-full justify-start gap-3 py-6 text-muted-foreground hover:text-foreground">
+
             <LogOut size={18} />
             Sign out
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 py-6 text-destructive hover:text-destructive"
-          >
+            className="w-full justify-start gap-3 py-6 text-destructive hover:text-destructive">
+
             <Trash2 size={18} />
             Delete account
           </Button>
@@ -90,8 +90,8 @@ const Profile = () => {
       </motion.div>
 
       <BottomNav />
-    </PageShell>
-  );
+    </PageShell>);
+
 };
 
 export default Profile;
