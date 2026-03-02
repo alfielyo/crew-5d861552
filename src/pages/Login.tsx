@@ -75,7 +75,7 @@ const Login = () => {
           <button onClick={handleMagicLink} className="text-sm text-primary hover:underline">
             Email me a sign-in link
           </button>
-          <Link to="/login" className="text-sm text-muted-foreground hover:underline">
+          <Link to="/forgot-password" className="text-sm text-muted-foreground hover:underline">
             Forgot password?
           </Link>
         </div>
