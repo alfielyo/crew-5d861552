@@ -3,14 +3,18 @@ import { Bell, ArrowRight, MapPin, Clock, Users } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [city, setCity] = useState("");
+  const [notifications, setNotifications] = useState<Tables<"notifications">[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -21,9 +25,22 @@ const HomePage = () => {
         setUserName(data.full_name?.split(" ")[0] || "");
         setCity(data.location_city || "");
       }
+      const { data: notifs } = await supabase.from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
+      if (notifs) {
+        setNotifications(notifs);
+        setUnreadCount(notifs.filter(n => !n.read).length);
+      }
     };
     load();
   }, []);
+
+  const markAllRead = async () => {
+    const unread = notifications.filter(n => !n.read);
+    if (unread.length === 0) return;
+    await supabase.from("notifications").update({ read: true }).in("id", unread.map(n => n.id));
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setUnreadCount(0);
+  };
   const run = {
     date: "Sunday 2nd March",
     time: "9:00am",
@@ -40,10 +57,31 @@ const HomePage = () => {
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-lg text-muted-foreground">
           Hey {userName},
         </motion.p>
-        <button className="relative rounded-full p-2 hover:bg-secondary">
-          <Bell size={22} className="text-foreground" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
-        </button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="relative rounded-full p-2 hover:bg-secondary" onClick={markAllRead}>
+              <Bell size={22} className="text-foreground" />
+              {unreadCount > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-72 p-0">
+            <div className="border-b border-border px-4 py-3">
+              <p className="text-sm font-medium">Notifications</p>
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <p className="px-4 py-6 text-center text-sm text-muted-foreground">No notifications yet</p>
+              ) : (
+                notifications.map(n => (
+                  <div key={n.id} className="border-b border-border px-4 py-3 last:border-0">
+                    <p className="text-sm font-medium">{n.title}</p>
+                    {n.body && <p className="mt-0.5 text-xs text-muted-foreground">{n.body}</p>}
+                  </div>
+                ))
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Hero */}
