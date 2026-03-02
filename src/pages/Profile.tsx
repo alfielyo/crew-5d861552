@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { User, MapPin, LogOut, Trash2 } from "lucide-react";
+import { User, MapPin, LogOut, Trash2, Settings } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -124,6 +124,14 @@ const Profile = () => {
 
         {/* Account Actions */}
         <div className="mt-12 space-y-3">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/settings")}
+            className="w-full justify-start gap-3 py-6 text-muted-foreground hover:text-foreground"
+          >
+            <Settings size={18} />
+            Settings
+          </Button>
           <Button
             variant="ghost"
             onClick={handleSignOut}

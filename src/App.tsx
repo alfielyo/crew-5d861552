@@ -14,6 +14,7 @@ import HomePage from "./pages/HomePage";
 import MyRun from "./pages/MyRun";
 import Profile from "./pages/Profile";
 import BookingConfirm from "./pages/BookingConfirm";
+import Settings from "./pages/Settings";
 import BookingSuccess from "./pages/BookingSuccess";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/AdminLayout";
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
           <Route path="/my-run" element={<ProtectedRoute><MyRun /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/booking/confirm" element={<ProtectedRoute><BookingConfirm /></ProtectedRoute>} />
           <Route path="/booking/success" element={<ProtectedRoute><BookingSuccess /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
