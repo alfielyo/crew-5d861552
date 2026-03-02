@@ -35,7 +35,7 @@ export function AdminSidebar() {
       : location.pathname.startsWith(path);
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="bg-[#f8f8f8] border-r border-border">
       <SidebarHeader className="p-4">
         {!collapsed && (
           <h2 className="font-serif text-lg tracking-tight">CREW Admin</h2>

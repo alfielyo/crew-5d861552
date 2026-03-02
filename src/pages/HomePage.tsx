@@ -48,7 +48,7 @@ const HomePage = () => {
       const { data } = await supabase
         .from("run_dates")
         .select("*")
-        .eq("status", "open")
+        .in("status", ["open", "scheduled"])
         .gte("date", new Date().toISOString().split("T")[0])
         .order("date", { ascending: true })
         .limit(1)
