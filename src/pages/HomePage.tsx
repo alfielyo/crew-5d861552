@@ -4,12 +4,26 @@ import PageShell from "@/components/PageShell";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
+  const [city, setCity] = useState("");
 
-  // Mock data — will be replaced with Supabase query
-  const userName = "Alfie";
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("profiles").select("full_name, location_city").eq("id", user.id).maybeSingle();
+      if (data) {
+        setUserName(data.full_name?.split(" ")[0] || "");
+        setCity(data.location_city || "");
+      }
+    };
+    load();
+  }, []);
   const run = {
     date: "Sunday 2nd March",
     time: "9:00am",
@@ -40,6 +54,7 @@ const HomePage = () => {
         className="mt-4"
       >
         <h1 className="font-serif text-4xl leading-tight">Meet new people in</h1>
+        {city && <p className="font-serif text-4xl leading-tight text-muted-foreground">{city}</p>}
       </motion.div>
 
       {/* Run Card */}
