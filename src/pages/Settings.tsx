@@ -24,7 +24,7 @@ const Settings = () => {
       if (!user) throw new Error("Not authenticated");
       const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       return data;
-    },
+    }
   });
 
   const [fullName, setFullName] = useState("");
@@ -65,25 +65,25 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const existingAnswers = (profile?.personality_answers as any) || {};
+      const existingAnswers = profile?.personality_answers as any || {};
 
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          full_name: fullName.trim(),
-          location_city: locationData?.city || "",
-          location_country: locationData?.country || "",
-          location_area: locationData?.area || "",
-          personality_answers: {
-            ...existingAnswers,
-            notifications: {
-              bookings: notifBookings,
-              groups: notifGroups,
-              reminders: notifReminders,
-            },
-          },
-        })
-        .eq("id", user.id);
+      const { error } = await supabase.
+      from("profiles").
+      update({
+        full_name: fullName.trim(),
+        location_city: locationData?.city || "",
+        location_country: locationData?.country || "",
+        location_area: locationData?.area || "",
+        personality_answers: {
+          ...existingAnswers,
+          notifications: {
+            bookings: notifBookings,
+            groups: notifGroups,
+            reminders: notifReminders
+          }
+        }
+      }).
+      eq("id", user.id);
 
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -101,8 +101,8 @@ const Settings = () => {
       <PageShell withBottomNav className="flex items-center justify-center">
         <p className="text-muted-foreground">Loading…</p>
         <BottomNav />
-      </PageShell>
-    );
+      </PageShell>);
+
   }
 
   return (
@@ -116,25 +116,25 @@ const Settings = () => {
 
         {/* Personal Information */}
         <section className="mt-8">
-          <h2 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider">Personal Information</h2>
+          <h2 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider font-sans">Personal Information</h2>
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">Full name</Label>
               <Input id="name" value={fullName}
-                onChange={(e) => { setFullName(e.target.value); markDirty(); }}
-                className="mt-1.5 border-border bg-secondary" />
+              onChange={(e) => {setFullName(e.target.value);markDirty();}}
+              className="mt-1.5 border-border bg-secondary" />
             </div>
             <div>
               <Label>Location</Label>
               <div className="mt-1.5">
                 <LocationSearch value={location}
-                  onSelect={(loc) => { setLocationData(loc); setLocation(loc.displayName); markDirty(); }}
-                  onChange={(val) => {
-                    setLocation(val);
-                    if (locationData && val !== locationData.displayName) setLocationData(null);
-                    markDirty();
-                  }}
-                />
+                onSelect={(loc) => {setLocationData(loc);setLocation(loc.displayName);markDirty();}}
+                onChange={(val) => {
+                  setLocation(val);
+                  if (locationData && val !== locationData.displayName) setLocationData(null);
+                  markDirty();
+                }} />
+
               </div>
             </div>
           </div>
@@ -142,33 +142,33 @@ const Settings = () => {
 
         {/* Notification Preferences */}
         <section className="mt-10">
-          <h2 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider">Notifications</h2>
+          <h2 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider font-sans">Notifications</h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="notif-bookings">Booking confirmations</Label>
               <Switch id="notif-bookings" checked={notifBookings}
-                onCheckedChange={(v) => { setNotifBookings(v); markDirty(); }} />
+              onCheckedChange={(v) => {setNotifBookings(v);markDirty();}} />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="notif-groups">Group updates</Label>
               <Switch id="notif-groups" checked={notifGroups}
-                onCheckedChange={(v) => { setNotifGroups(v); markDirty(); }} />
+              onCheckedChange={(v) => {setNotifGroups(v);markDirty();}} />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="notif-reminders">Run reminders</Label>
               <Switch id="notif-reminders" checked={notifReminders}
-                onCheckedChange={(v) => { setNotifReminders(v); markDirty(); }} />
+              onCheckedChange={(v) => {setNotifReminders(v);markDirty();}} />
             </div>
           </div>
         </section>
 
         {/* Questionnaire */}
         <section className="mt-10">
-          <h2 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider">Interests & Personality</h2>
+          <h2 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider font-sans">Interests & Personality</h2>
           <button
             onClick={() => navigate("/onboarding/1?mode=retake")}
-            className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-secondary"
-          >
+            className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-secondary">
+
             <div className="flex items-center gap-3">
               <RefreshCw size={18} className="text-muted-foreground" />
               <div className="text-left">
@@ -181,19 +181,19 @@ const Settings = () => {
         </section>
 
         {/* Save button */}
-        {dirty && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
+        {dirty &&
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
             <Button onClick={handleSave} disabled={saving}
-              className="w-full bg-primary py-6 text-base font-semibold text-primary-foreground">
+          className="w-full bg-primary py-6 text-base font-semibold text-primary-foreground">
               {saving ? "Saving…" : "Save Changes"}
             </Button>
           </motion.div>
-        )}
+        }
       </motion.div>
 
       <BottomNav />
-    </PageShell>
-  );
+    </PageShell>);
+
 };
 
 export default Settings;
