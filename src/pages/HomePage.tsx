@@ -41,29 +41,32 @@ const HomePage = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     setUnreadCount(0);
   };
-  const [nextRun, setNextRun] = useState<any>(null);
+  const [upcomingRuns, setUpcomingRuns] = useState<any[]>([]);
 
   useEffect(() => {
-    const loadRun = async () => {
+    const loadRuns = async () => {
       const { data } = await supabase
         .from("run_dates")
         .select("*")
         .in("status", ["open", "scheduled"])
         .gte("date", new Date().toISOString().split("T")[0])
         .order("date", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (data) {
-        // Count bookings for spots remaining
-        const { count } = await supabase
-          .from("bookings")
-          .select("*", { count: "exact", head: true })
-          .eq("run_date_id", data.id)
-          .eq("status", "confirmed");
-        setNextRun({ ...data, spotsRemaining: data.capacity - (count || 0) });
+        .limit(2);
+      if (data && data.length > 0) {
+        const enriched = await Promise.all(
+          data.map(async (run) => {
+            const { count } = await supabase
+              .from("bookings")
+              .select("*", { count: "exact", head: true })
+              .eq("run_date_id", run.id)
+              .eq("status", "confirmed");
+            return { ...run, spotsRemaining: run.capacity - (count || 0) };
+          })
+        );
+        setUpcomingRuns(enriched);
       }
     };
-    loadRun();
+    loadRuns();
   }, []);
 
   return (
@@ -111,66 +114,65 @@ const HomePage = () => {
         {city && <p className="font-serif text-4xl leading-tight text-muted-foreground">{city}</p>}
       </motion.div>
 
-      {/* Run Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="mt-10"
-      >
-        {nextRun ? (
-          <div className="rounded-sm border border-border bg-card p-5">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="font-serif text-xl">Run 5k</h2>
-                <div className="mt-2 space-y-1.5">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock size={14} />
-                    <span>
-                      {new Date(nextRun.date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · {nextRun.time}
-                    </span>
+      {/* Run Cards */}
+      <div className="mt-10 space-y-4">
+        {upcomingRuns.length > 0 ? (
+          upcomingRuns.map((run, i) => (
+            <motion.div
+              key={run.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 + i * 0.15 }}
+            >
+              <div className="rounded-sm border border-border bg-card p-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="font-serif text-xl">Run 5k</h2>
+                    <div className="mt-2 space-y-1.5">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock size={14} />
+                        <span>
+                          {new Date(run.date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · {run.time}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin size={14} />
+                        <span>{run.meeting_point}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Users size={14} />
+                        <span>{run.spotsRemaining} spots left</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin size={14} />
-                    <span>{nextRun.meeting_point}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users size={14} />
-                    <span>{nextRun.spotsRemaining} spots left</span>
-                  </div>
+                  <button
+                    onClick={() => navigate(`/booking/confirm?run=${run.id}`)}
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
+                  >
+                    <ArrowRight size={20} />
+                  </button>
                 </div>
               </div>
-              <button
-                onClick={() => navigate(`/booking/confirm?run=${nextRun.id}`)}
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
+              <Button
+                onClick={() => navigate(`/booking/confirm?run=${run.id}`)}
+                className="mt-3 w-full py-6 text-base font-semibold"
               >
-                <ArrowRight size={20} />
-              </button>
-            </div>
-          </div>
+                Book Your Spot — £{(run.price_pence / 100).toFixed(2)}
+              </Button>
+            </motion.div>
+          ))
         ) : (
-          <div className="rounded-sm border border-border bg-card p-5 text-center">
-            <p className="text-sm text-muted-foreground">No upcoming runs — check back soon!</p>
-          </div>
-        )}
-      </motion.div>
-
-      {/* Book CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="mt-6"
-      >
-        {nextRun && (
-          <Button
-            onClick={() => navigate(`/booking/confirm?run=${nextRun.id}`)}
-            className="w-full py-6 text-base font-semibold"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
           >
-            Book Your Spot — £{(nextRun.price_pence / 100).toFixed(2)}
-          </Button>
+            <div className="rounded-sm border border-border bg-card p-5 text-center">
+              <p className="text-sm text-muted-foreground">No upcoming runs — check back soon!</p>
+            </div>
+          </motion.div>
         )}
-      </motion.div>
+      </div>
 
       {/* About */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }} className="mt-10">
