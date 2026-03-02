@@ -30,7 +30,7 @@ const Profile = () => {
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       return data;
     },
   });
