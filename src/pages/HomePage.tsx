@@ -41,14 +41,30 @@ const HomePage = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     setUnreadCount(0);
   };
-  const run = {
-    date: "Sunday 2nd March",
-    time: "9:00am",
-    meetingPoint: "Battersea Park Bandstand",
-    price: 10,
-    spotsRemaining: 18,
-    capacity: 30,
-  };
+  const [nextRun, setNextRun] = useState<any>(null);
+
+  useEffect(() => {
+    const loadRun = async () => {
+      const { data } = await supabase
+        .from("run_dates")
+        .select("*")
+        .eq("status", "open")
+        .gte("date", new Date().toISOString().split("T")[0])
+        .order("date", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        // Count bookings for spots remaining
+        const { count } = await supabase
+          .from("bookings")
+          .select("*", { count: "exact", head: true })
+          .eq("run_date_id", data.id)
+          .eq("status", "confirmed");
+        setNextRun({ ...data, spotsRemaining: data.capacity - (count || 0) });
+      }
+    };
+    loadRun();
+  }, []);
 
   return (
     <PageShell withBottomNav className="px-6 py-8">
@@ -102,35 +118,41 @@ const HomePage = () => {
         transition={{ delay: 0.25 }}
         className="mt-10"
       >
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="font-serif text-xl">Run 5k</h2>
-              <div className="mt-2 space-y-1.5">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock size={14} />
-                  <span>
-                    {run.date} · {run.time}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin size={14} />
-                  <span>{run.meetingPoint}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Users size={14} />
-                  <span>{run.spotsRemaining} spots left</span>
+        {nextRun ? (
+          <div className="rounded-sm border border-border bg-card p-5">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="font-serif text-xl">Run 5k</h2>
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock size={14} />
+                    <span>
+                      {new Date(nextRun.date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · {nextRun.time}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin size={14} />
+                    <span>{nextRun.meeting_point}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users size={14} />
+                    <span>{nextRun.spotsRemaining} spots left</span>
+                  </div>
                 </div>
               </div>
+              <button
+                onClick={() => navigate(`/booking/confirm?run=${nextRun.id}`)}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
+              >
+                <ArrowRight size={20} />
+              </button>
             </div>
-            <button
-              onClick={() => navigate("/booking/confirm")}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
-            >
-              <ArrowRight size={20} />
-            </button>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-sm border border-border bg-card p-5 text-center">
+            <p className="text-sm text-muted-foreground">No upcoming runs — check back soon!</p>
+          </div>
+        )}
       </motion.div>
 
       {/* Book CTA */}
@@ -140,12 +162,14 @@ const HomePage = () => {
         transition={{ delay: 0.4 }}
         className="mt-6"
       >
-        <Button
-          onClick={() => navigate("/booking/confirm")}
-          className="w-full bg-primary py-6 text-base font-semibold text-primary-foreground"
-        >
-          Book Your Spot — £{run.price}
-        </Button>
+        {nextRun && (
+          <Button
+            onClick={() => navigate(`/booking/confirm?run=${nextRun.id}`)}
+            className="w-full py-6 text-base font-semibold"
+          >
+            Book Your Spot — £{(nextRun.price_pence / 100).toFixed(2)}
+          </Button>
+        )}
       </motion.div>
 
       {/* About */}
