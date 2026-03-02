@@ -94,6 +94,24 @@ serve(async (req) => {
 
     if (insertError) throw insertError;
 
+    // Fetch run date details for the notification
+    const { data: runDate } = await supabaseAdmin
+      .from("run_dates")
+      .select("date, time, meeting_point")
+      .eq("id", runDateId)
+      .single();
+
+    const dateLabel = runDate
+      ? new Date(runDate.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
+      : "your selected date";
+
+    // Create booking confirmation notification
+    await supabaseAdmin.from("notifications").insert({
+      user_id: userId,
+      title: "Booking confirmed 🎉",
+      body: `You're booked in for ${dateLabel} at ${runDate?.meeting_point ?? "the meeting point"}. Your crew will be matched 48h before the run.`,
+    });
+
     return new Response(
       JSON.stringify({ booking_id: booking.id, already_existed: false }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },

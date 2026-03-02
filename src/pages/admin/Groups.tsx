@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Trash2, UserPlus } from "lucide-react";
+import { Plus, Trash2, UserPlus, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -103,6 +103,16 @@ const Groups = () => {
         user_id: userId,
       });
       if (error) throw error;
+
+      // Fetch group name for notification
+      const group = groups?.find((g: any) => g.id === groupId);
+      const groupName = group?.name ?? "your group";
+
+      await supabase.from("notifications").insert({
+        user_id: userId,
+        title: "You've been matched! 🏃‍♂️",
+        body: `Great news — you've been added to ${groupName}. Your crew and route details are now visible in My Run.`,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-groups"] });
@@ -125,16 +135,87 @@ const Groups = () => {
     onError: (e) => toast.error(e.message),
   });
 
+  const notifyUnmatched = useMutation({
+    mutationFn: async (runDateId: string) => {
+      // Get all users with confirmed bookings for this run date
+      const { data: bookings } = await supabase
+        .from("bookings")
+        .select("user_id")
+        .eq("run_date_id", runDateId)
+        .eq("status", "confirmed");
+
+      if (!bookings || bookings.length === 0) {
+        throw new Error("No confirmed bookings for this run date");
+      }
+
+      // Get all users already in a group for this run date
+      const { data: groupsForRun } = await supabase
+        .from("run_groups")
+        .select("id")
+        .eq("run_date_id", runDateId);
+
+      const groupIds = (groupsForRun ?? []).map((g) => g.id);
+
+      let matchedUserIds: string[] = [];
+      if (groupIds.length > 0) {
+        const { data: members } = await supabase
+          .from("run_group_members")
+          .select("user_id")
+          .in("run_group_id", groupIds);
+        matchedUserIds = (members ?? []).map((m) => m.user_id);
+      }
+
+      const unmatchedUserIds = bookings
+        .map((b) => b.user_id)
+        .filter((uid) => !matchedUserIds.includes(uid));
+
+      if (unmatchedUserIds.length === 0) {
+        throw new Error("All booked runners have been matched");
+      }
+
+      const notifications = unmatchedUserIds.map((uid) => ({
+        user_id: uid,
+        title: "No crew match this time 😔",
+        body: "Unfortunately we weren't able to match you into a crew for this run. Your booking remains active — we'll try again if spots shift!",
+      }));
+
+      const { error } = await supabase.from("notifications").insert(notifications);
+      if (error) throw error;
+
+      return unmatchedUserIds.length;
+    },
+    onSuccess: (count) => {
+      toast.success(`Notified ${count} unmatched runner${count > 1 ? "s" : ""}`);
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-3xl">Groups</h1>
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-1">
-              <Plus className="h-4 w-4" /> New Group
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          {/* Notify unmatched runners for a specific run */}
+          <Select onValueChange={(runDateId) => notifyUnmatched.mutate(runDateId)}>
+            <SelectTrigger className="w-auto gap-1" asChild>
+              <Button size="sm" variant="outline" className="gap-1" disabled={notifyUnmatched.isPending}>
+                <BellOff className="h-4 w-4" /> Notify Unmatched
+              </Button>
+            </SelectTrigger>
+            <SelectContent>
+              {runDates?.map((r) => (
+                <SelectItem key={r.id} value={r.id}>
+                  {r.date} · {r.time}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-1">
+                <Plus className="h-4 w-4" /> New Group
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create Group</DialogTitle>
@@ -169,6 +250,7 @@ const Groups = () => {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Add Member Dialog */}

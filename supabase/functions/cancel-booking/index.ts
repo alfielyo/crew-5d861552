@@ -92,6 +92,17 @@ serve(async (req) => {
       .update({ status: "cancelled" })
       .eq("id", booking_id);
 
+    // Create cancellation confirmation notification
+    const dateLabel = new Date(runDate.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+    const refundText = refundAmount > 0 ? ` A refund of £${(refundAmount / 100).toFixed(2)} is on its way.` : "";
+    const feeText = cancellationFeeApplied ? ` A £${(CANCELLATION_FEE_PENCE / 100).toFixed(2)} cancellation fee was applied.` : "";
+
+    await supabaseAdmin.from("notifications").insert({
+      user_id: user.id,
+      title: "Booking cancelled",
+      body: `Your booking for ${dateLabel} has been cancelled.${refundText}${feeText}`,
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
