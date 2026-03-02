@@ -27,7 +27,7 @@ const Landing = () => {
             transition={{ delay: 0.2 }}
             className="font-serif text-5xl leading-[1.1] sm:text-6xl">
 
-            Find your{" "}
+            Find Your{" "}
             <span className="text-primary">Crew</span>
           </motion.h1>
 
