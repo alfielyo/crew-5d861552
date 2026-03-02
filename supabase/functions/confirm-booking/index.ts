@@ -25,15 +25,21 @@ serve(async (req) => {
 
   try {
     // Verify the user is authenticated
-    const authHeader = req.headers.get("Authorization")!;
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) throw new Error("No authorization header");
     const token = authHeader.replace("Bearer ", "");
-    const { data: authData } = await supabaseClient.auth.getUser(token);
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser(token);
+    if (authError) {
+      console.error("Auth error:", authError.message);
+      throw new Error("Authentication failed: " + authError.message);
+    }
     const user = authData.user;
     if (!user) throw new Error("User not authenticated");
+    console.log("User authenticated:", user.id);
 
     const { session_id } = await req.json();
     if (!session_id) throw new Error("session_id is required");
-
+    console.log("Session ID:", session_id);
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
