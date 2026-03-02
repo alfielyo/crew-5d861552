@@ -1,25 +1,89 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { MapPin, Clock, AlertCircle } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { MapPin, Clock, AlertCircle, Tag, Loader2 } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const BookingConfirm = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
+  const [discountCode, setDiscountCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [runData, setRunData] = useState<{
+    id: string;
+    date: string;
+    time: string;
+    meeting_point: string;
+    price_pence: number;
+  } | null>(null);
 
-  const run = {
-    date: "Sunday 2nd March 2025",
-    time: "9:00am",
-    meetingPoint: "Battersea Park Bandstand",
-    price: 10,
-    refundDeadline: "Friday 28th February at 9:00am",
+  const runId = searchParams.get("run");
+
+  useEffect(() => {
+    const loadRun = async () => {
+      if (!runId) return;
+      const { data } = await supabase
+        .from("run_dates")
+        .select("id, date, time, meeting_point, price_pence")
+        .eq("id", runId)
+        .maybeSingle();
+      if (data) setRunData(data);
+    };
+    loadRun();
+  }, [runId]);
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   };
 
-  const handlePay = () => {
-    // TODO: POST to create_checkout_session Edge Function
-    navigate("/booking/success");
+  const getRefundDeadline = (dateStr: string, timeStr: string) => {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() - 2);
+    return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) + ` at ${timeStr}`;
   };
+
+  const handlePay = async () => {
+    if (!runData) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: {
+          run_date_id: runData.id,
+          discount_code: discountCode.trim() || undefined,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) {
+        toast({ title: data.error, variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err: any) {
+      toast({ title: "Payment failed", description: err.message, variant: "destructive" });
+      setLoading(false);
+    }
+  };
+
+  if (!runData) {
+    return (
+      <PageShell className="flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </PageShell>
+    );
+  }
+
+  const price = (runData.price_pence / 100).toFixed(2);
 
   return (
     <PageShell className="flex flex-col px-6 py-8">
@@ -30,35 +94,51 @@ const BookingConfirm = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-serif text-2xl">Confirm your booking</h1>
 
-        <div className="mt-8 rounded-2xl border border-border bg-card p-5 space-y-4">
+        <div className="mt-8 rounded-sm border border-border bg-card p-5 space-y-4">
           <div className="flex items-center gap-3">
             <Clock size={16} className="text-muted-foreground" />
-            <span className="text-sm">{run.date} · {run.time}</span>
+            <span className="text-sm">{formatDate(runData.date)} · {runData.time}</span>
           </div>
           <div className="flex items-center gap-3">
             <MapPin size={16} className="text-muted-foreground" />
-            <span className="text-sm">{run.meetingPoint}</span>
+            <span className="text-sm">{runData.meeting_point}</span>
           </div>
           <div className="border-t border-border pt-4">
             <div className="flex items-center justify-between text-lg font-semibold">
               <span>Total</span>
-              <span>£{run.price}</span>
+              <span>£{price}</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 flex items-start gap-3 rounded-xl bg-secondary p-4">
+        {/* Discount Code */}
+        <div className="mt-6">
+          <label className="mb-2 flex items-center gap-2 text-sm font-medium">
+            <Tag size={14} className="text-muted-foreground" />
+            Discount code
+          </label>
+          <Input
+            placeholder="Enter code"
+            value={discountCode}
+            onChange={(e) => setDiscountCode(e.target.value)}
+            className="rounded-sm"
+          />
+        </div>
+
+        <div className="mt-6 flex items-start gap-3 rounded-sm bg-secondary p-4">
           <AlertCircle size={16} className="mt-0.5 shrink-0 text-muted-foreground" />
           <p className="text-xs text-muted-foreground">
-            Full refund available until {run.refundDeadline}. No refunds after this point.
+            Full refund available until {getRefundDeadline(runData.date, runData.time)}. No refunds after this point.
           </p>
         </div>
 
         <Button
           onClick={handlePay}
-          className="mt-8 w-full bg-primary py-6 text-base font-semibold text-primary-foreground"
+          disabled={loading}
+          className="mt-8 w-full py-6 text-base font-semibold"
         >
-          Pay £{run.price}
+          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {loading ? "Redirecting..." : `Pay £${price}`}
         </Button>
       </motion.div>
     </PageShell>
