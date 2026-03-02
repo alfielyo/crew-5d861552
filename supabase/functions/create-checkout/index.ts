@@ -67,7 +67,7 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      line_items: [{ price: "price_1T6ZtQCxDZXB6o7180CjESOD", quantity: 1 }],
+      line_items: [{ price: "price_1T6XNlCxDZXB6o7143Z6iSvn", quantity: 1 }],
       mode: "payment",
       discounts,
       allow_promotion_codes: !discounts ? true : undefined,
