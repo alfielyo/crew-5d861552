@@ -69,17 +69,17 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: "price_1T6XNlCxDZXB6o7143Z6iSvn", quantity: 1 }],
       mode: "payment",
-      ui_mode: "embedded",
       discounts,
       allow_promotion_codes: !discounts ? true : undefined,
-      return_url: `${req.headers.get("origin")}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.get("origin")}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin")}/booking/confirm?run=${run_date_id}`,
       metadata: {
         user_id: user.id,
         run_date_id,
       },
     });
 
-    return new Response(JSON.stringify({ clientSecret: session.client_secret }), {
+    return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

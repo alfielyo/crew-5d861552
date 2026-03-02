@@ -1,27 +1,19 @@
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { MapPin, Clock, AlertCircle, Tag, Loader2, ArrowLeft } from "lucide-react";
+import { MapPin, Clock, AlertCircle, Tag, Loader2 } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect, useCallback } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { loadStripe } from "@stripe/stripe-js";
-import {
-  EmbeddedCheckoutProvider,
-  EmbeddedCheckout,
-} from "@stripe/react-stripe-js";
-
-const stripePromise = loadStripe("pk_test_51SChk7Q2y75tNzN9K23scaL22UvVPWO0sshObJAe435sojfG3uRh3xZXt8UOcFjirsUbV2ODkWwmrlejMSP2eZSy008FLcHtel");
 
 const BookingConfirm = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [discountCode, setDiscountCode] = useState("");
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [runData, setRunData] = useState<{
     id: string;
@@ -74,13 +66,11 @@ const BookingConfirm = () => {
         setLoading(false);
         return;
       }
-      if (data?.clientSecret) {
-        setClientSecret(data.clientSecret);
-        setShowCheckout(true);
+      if (data?.url) {
+        window.location.href = data.url;
       }
     } catch (err: any) {
       toast({ title: "Payment failed", description: err.message, variant: "destructive" });
-    } finally {
       setLoading(false);
     }
   };
@@ -94,26 +84,6 @@ const BookingConfirm = () => {
   }
 
   const price = (runData.price_pence / 100).toFixed(2);
-
-  // Show embedded checkout
-  if (showCheckout && clientSecret) {
-    return (
-      <PageShell className="flex flex-col px-6 py-8">
-        <button
-          onClick={() => setShowCheckout(false)}
-          className="mb-6 flex items-center gap-2 text-sm text-muted-foreground"
-        >
-          <ArrowLeft size={16} /> Back to details
-        </button>
-        <h1 className="font-serif text-2xl mb-6">Complete payment</h1>
-        <div className="rounded-sm border border-border overflow-hidden">
-          <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
-            <EmbeddedCheckout />
-          </EmbeddedCheckoutProvider>
-        </div>
-      </PageShell>
-    );
-  }
 
   return (
     <PageShell className="flex flex-col px-6 py-8">
@@ -168,7 +138,7 @@ const BookingConfirm = () => {
           className="mt-8 w-full py-6 text-base font-semibold"
         >
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          {loading ? "Loading checkout..." : `Pay £${price}`}
+          {loading ? "Redirecting..." : `Pay £${price}`}
         </Button>
       </motion.div>
     </PageShell>
