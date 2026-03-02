@@ -144,7 +144,10 @@ const HomePage = () => {
                 transition={{ delay: 0.25 + i * 0.15 }}
                 className={isBooked ? "pointer-events-none" : ""}
               >
-                <div className="rounded-sm border border-border bg-card p-5">
+                <div
+                  onClick={() => !isBooked && navigate(`/booking/confirm?run=${run.id}`)}
+                  className="cursor-pointer rounded-sm border border-border bg-card p-5 transition-colors hover:bg-secondary/50"
+                >
                   <div className="flex items-start justify-between">
                     <div>
                       <h2 className="font-serif text-xl">Run 5k</h2>
@@ -168,20 +171,11 @@ const HomePage = () => {
                         </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => navigate(`/booking/confirm?run=${run.id}`)}
-                      className="flex h-12 w-12 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
-                    >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border">
                       <ArrowRight size={20} />
-                    </button>
+                    </div>
                   </div>
                 </div>
-                <Button
-                  onClick={() => navigate(`/booking/confirm?run=${run.id}`)}
-                  className="mt-3 w-full py-6 text-base font-semibold"
-                >
-                  {isBooked ? "Booked" : `Book Your Spot — £${(run.price_pence / 100).toFixed(2)}`}
-                </Button>
               </motion.div>
             );
           })
