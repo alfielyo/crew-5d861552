@@ -197,10 +197,9 @@ const Groups = () => {
         <div className="flex gap-2">
           {/* Notify unmatched runners for a specific run */}
           <Select onValueChange={(runDateId) => notifyUnmatched.mutate(runDateId)}>
-            <SelectTrigger className="w-auto gap-1" asChild>
-              <Button size="sm" variant="outline" className="gap-1" disabled={notifyUnmatched.isPending}>
-                <BellOff className="h-4 w-4" /> Notify Unmatched
-              </Button>
+            <SelectTrigger className="h-8 w-auto gap-1 rounded-md border px-3 text-sm font-medium" disabled={notifyUnmatched.isPending}>
+              <BellOff className="h-4 w-4" />
+              <span>Notify Unmatched</span>
             </SelectTrigger>
             <SelectContent>
               {runDates?.map((r) => (
