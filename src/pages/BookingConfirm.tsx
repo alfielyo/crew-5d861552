@@ -12,7 +12,7 @@ const BookingConfirm = () => {
     date: "Sunday 2nd March 2025",
     time: "9:00am",
     meetingPoint: "Battersea Park Bandstand",
-    price: 12,
+    price: 10,
     refundDeadline: "Friday 28th February at 9:00am",
   };
 
@@ -58,7 +58,7 @@ const BookingConfirm = () => {
           onClick={handlePay}
           className="mt-8 w-full bg-primary py-6 text-base font-semibold text-primary-foreground"
         >
-          Pay £{run.price} with Stripe
+          Pay £{run.price}
         </Button>
       </motion.div>
     </PageShell>
