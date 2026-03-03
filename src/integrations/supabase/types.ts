@@ -49,6 +49,73 @@ export type Database = {
           },
         ]
       }
+      group_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          run_group_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          run_group_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          run_group_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_messages_run_group_id_fkey"
+            columns: ["run_group_id"]
+            isOneToOne: false
+            referencedRelation: "run_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matching_runs: {
+        Row: {
+          error_message: string | null
+          groups_created: number
+          id: string
+          run_date_id: string
+          status: string
+          triggered_at: string
+        }
+        Insert: {
+          error_message?: string | null
+          groups_created?: number
+          id?: string
+          run_date_id: string
+          status?: string
+          triggered_at?: string
+        }
+        Update: {
+          error_message?: string | null
+          groups_created?: number
+          id?: string
+          run_date_id?: string
+          status?: string
+          triggered_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matching_runs_run_date_id_fkey"
+            columns: ["run_date_id"]
+            isOneToOne: true
+            referencedRelation: "run_dates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null
@@ -80,6 +147,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          date_of_birth: string | null
           fitness_level: string | null
           full_name: string | null
           has_consented: boolean
@@ -95,6 +163,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          date_of_birth?: string | null
           fitness_level?: string | null
           full_name?: string | null
           has_consented?: boolean
@@ -110,6 +179,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          date_of_birth?: string | null
           fitness_level?: string | null
           full_name?: string | null
           has_consented?: boolean
@@ -123,6 +193,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      routes: {
+        Row: {
+          created_at: string
+          distance_km: number
+          id: string
+          map_image_url: string | null
+          meeting_point: string
+          name: string
+          post_run_cafe: string
+          run_date_id: string
+          waypoints: Json
+        }
+        Insert: {
+          created_at?: string
+          distance_km?: number
+          id?: string
+          map_image_url?: string | null
+          meeting_point?: string
+          name?: string
+          post_run_cafe?: string
+          run_date_id: string
+          waypoints?: Json
+        }
+        Update: {
+          created_at?: string
+          distance_km?: number
+          id?: string
+          map_image_url?: string | null
+          meeting_point?: string
+          name?: string
+          post_run_cafe?: string
+          run_date_id?: string
+          waypoints?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routes_run_date_id_fkey"
+            columns: ["run_date_id"]
+            isOneToOne: true
+            referencedRelation: "run_dates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       run_dates: {
         Row: {
@@ -182,22 +296,31 @@ export type Database = {
       }
       run_groups: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           id: string
           name: string
           run_date_id: string
+          status: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           id?: string
           name: string
           run_date_id: string
+          status?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           id?: string
           name?: string
           run_date_id?: string
+          status?: string
         }
         Relationships: [
           {
