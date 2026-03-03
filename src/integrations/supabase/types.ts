@@ -126,7 +126,6 @@ export type Database = {
       }
       run_dates: {
         Row: {
-          capacity: number
           created_at: string
           date: string
           id: string
@@ -136,7 +135,6 @@ export type Database = {
           time: string
         }
         Insert: {
-          capacity?: number
           created_at?: string
           date: string
           id?: string
@@ -146,7 +144,6 @@ export type Database = {
           time?: string
         }
         Update: {
-          capacity?: number
           created_at?: string
           date?: string
           id?: string
