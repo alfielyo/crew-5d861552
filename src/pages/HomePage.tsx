@@ -77,7 +77,7 @@ const HomePage = () => {
               .select("*", { count: "exact", head: true })
               .eq("run_date_id", run.id)
               .eq("status", "confirmed");
-            return { ...run, spotsRemaining: run.capacity - (count || 0) };
+            return { ...run, bookingCount: count || 0 };
           })
         );
         setUpcomingRuns(enriched);
@@ -167,7 +167,7 @@ const HomePage = () => {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Users size={14} />
-                          <span>{run.spotsRemaining} spots left</span>
+                          <span>Popular!</span>
                         </div>
                       </div>
                     </div>

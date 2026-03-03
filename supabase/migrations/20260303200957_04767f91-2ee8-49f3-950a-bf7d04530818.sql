@@ -1,0 +1,1 @@
+ALTER TABLE public.run_dates DROP COLUMN capacity;

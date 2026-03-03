@@ -27,7 +27,6 @@ interface RunForm {
   date: string;
   time: string;
   meeting_point: string;
-  capacity: number;
   price_pence: number;
 }
 
@@ -35,7 +34,6 @@ const defaultForm: RunForm = {
   date: "",
   time: "09:00",
   meeting_point: "Battersea Park Bandstand",
-  capacity: 30,
   price_pence: 1200,
 };
 
@@ -99,7 +97,6 @@ const Runs = () => {
       date: run.date,
       time: run.time,
       meeting_point: run.meeting_point,
-      capacity: run.capacity,
       price_pence: run.price_pence,
     });
     setOpen(true);
@@ -139,15 +136,9 @@ const Runs = () => {
                 <Label>Meeting Point</Label>
                 <Input value={form.meeting_point} onChange={(e) => setForm({ ...form, meeting_point: e.target.value })} required />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Capacity</Label>
-                  <Input type="number" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })} required />
-                </div>
-                <div>
-                  <Label>Price (pence)</Label>
-                  <Input type="number" value={form.price_pence} onChange={(e) => setForm({ ...form, price_pence: Number(e.target.value) })} required />
-                </div>
+              <div>
+                <Label>Price (pence)</Label>
+                <Input type="number" value={form.price_pence} onChange={(e) => setForm({ ...form, price_pence: Number(e.target.value) })} required />
               </div>
               <Button type="submit" className="w-full" disabled={upsert.isPending}>
                 {editingId ? "Update" : "Create"}
@@ -164,7 +155,6 @@ const Runs = () => {
               <TableHead>Date</TableHead>
               <TableHead>Time</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Capacity</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-20"></TableHead>
@@ -179,7 +169,6 @@ const Runs = () => {
                   <TableCell>{run.date}</TableCell>
                   <TableCell>{run.time}</TableCell>
                   <TableCell>{run.meeting_point}</TableCell>
-                  <TableCell>{run.capacity}</TableCell>
                   <TableCell>£{(run.price_pence / 100).toFixed(2)}</TableCell>
                   <TableCell>
                     <span className="text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">{run.status}</span>
