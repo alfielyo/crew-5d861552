@@ -1,11 +1,15 @@
 import { motion } from "framer-motion";
-import { Clock, X } from "lucide-react";
+import { Clock, X, Users, Map, MessageCircle } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import BottomNav from "@/components/BottomNav";
+import { RouteCard } from "@/components/RouteCard";
+import { GroupChat } from "@/components/GroupChat";
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useMyGroup } from "@/hooks/use-my-group";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,13 +20,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+
+function getInitials(name: string | null): string {
+  if (!name) return "?";
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+}
 
 const MyRun = () => {
   const queryClient = useQueryClient();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setCurrentUserId(user.id);
+    });
+  }, []);
+
+  // Next booking
   const { data: nextBooking, isLoading } = useQuery({
     queryKey: ["my-next-booking"],
     queryFn: async () => {
@@ -35,7 +52,9 @@ const MyRun = () => {
         .eq("user_id", user.id)
         .eq("status", "confirmed")
         .order("created_at", { ascending: true });
-      const upcoming = (data || []).filter((b: any) => b.run_dates && b.run_dates.date >= today);
+      const upcoming = (data || []).filter(
+        (b: any) => b.run_dates && b.run_dates.date >= today
+      );
       upcoming.sort((a: any, b: any) => {
         const aKey = `${a.run_dates.date}T${a.run_dates.time}`;
         const bKey = `${b.run_dates.date}T${b.run_dates.time}`;
@@ -45,6 +64,13 @@ const MyRun = () => {
     },
   });
 
+  const runDateId = (nextBooking?.run_dates as any)?.id;
+
+  // Group data (only fetches when runDateId is available)
+  const { data: myGroup } = useMyGroup(runDateId);
+  const isApproved = !!myGroup;
+
+  // Countdown
   const targetDate = useMemo(() => {
     if (!nextBooking?.run_dates) return null;
     const rd = nextBooking.run_dates as any;
@@ -53,8 +79,7 @@ const MyRun = () => {
 
   const isWithin48Hours = useMemo(() => {
     if (!targetDate) return false;
-    const hoursUntil = (targetDate.getTime() - Date.now()) / (1000 * 60 * 60);
-    return hoursUntil < 48;
+    return (targetDate.getTime() - Date.now()) / (1000 * 60 * 60) < 48;
   }, [targetDate]);
 
   const runPricePence = useMemo(() => {
@@ -67,8 +92,7 @@ const MyRun = () => {
   useEffect(() => {
     if (!targetDate) return;
     const tick = () => {
-      const now = Date.now();
-      const diff = targetDate.getTime() - now;
+      const diff = targetDate.getTime() - Date.now();
       if (diff <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
@@ -85,6 +109,7 @@ const MyRun = () => {
     return () => clearInterval(interval);
   }, [targetDate]);
 
+  // Cancel booking
   const handleCancel = async () => {
     if (!nextBooking) return;
     setIsCancelling(true);
@@ -96,59 +121,144 @@ const MyRun = () => {
       if (data?.error) throw new Error(data.error);
 
       const refundPounds = ((data.refund_amount_pence ?? 0) / 100).toFixed(2);
+      const feeMsg = data.cancellation_fee_applied
+        ? `A £5.00 fee was applied. You'll be refunded £${refundPounds}.`
+        : `Full refund of £${refundPounds} incoming.`;
 
-      if (data.cancellation_fee_applied) {
-        toast({
-          title: "Booking cancelled",
-          description: `A £5.00 cancellation fee has been applied. You will be refunded £${refundPounds}. Please allow 5–10 business days for the refund to process.`,
-        });
-      } else {
-        toast({
-          title: "Booking cancelled",
-          description: `You will receive a full refund of £${refundPounds}. Please allow 5–10 business days for the refund to process.`,
-        });
-      }
-
+      toast.success(`Booking cancelled — ${feeMsg}`);
       queryClient.invalidateQueries({ queryKey: ["my-next-booking"] });
+      queryClient.invalidateQueries({ queryKey: ["my-group"] });
     } catch (err: any) {
-      toast({
-        title: "Cancellation failed",
-        description: err.message || "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error(`Cancellation failed: ${err.message}`);
     } finally {
       setIsCancelling(false);
       setShowCancelDialog(false);
     }
   };
 
-  const cancellationFeeDisplay = "£5.00";
   const fullRefundDisplay = `£${(runPricePence / 100).toFixed(2)}`;
   const partialRefundDisplay = `£${(Math.max(0, runPricePence - 500) / 100).toFixed(2)}`;
 
   return (
-    <PageShell withBottomNav className="flex flex-col items-center px-6 py-12">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full text-center"
-      >
-        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
-          <Clock size={24} className="text-primary" />
-        </div>
-
+    <PageShell withBottomNav className="flex flex-col px-4 py-8">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
         {isLoading ? (
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-center text-muted-foreground">Loading…</p>
         ) : !targetDate ? (
-          <>
+          <div className="text-center">
+            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
+              <Clock size={24} className="text-primary" />
+            </div>
             <h1 className="font-serif text-2xl">No upcoming run</h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              Book a run to see your countdown here.
+              Book a run to see your details here.
             </p>
-          </>
+          </div>
+        ) : isApproved && myGroup ? (
+          /* ── POST-APPROVAL VIEW ── */
+          <div className="space-y-6">
+            <div className="text-center">
+              <h1 className="font-serif text-2xl">{myGroup.group_name}</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {new Date(myGroup.run_date).toLocaleDateString("en-GB", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}{" "}
+                · {myGroup.run_time.slice(0, 5)}
+              </p>
+            </div>
+
+            <Tabs defaultValue="crew">
+              <TabsList className="w-full">
+                <TabsTrigger value="crew" className="flex-1 gap-1">
+                  <Users size={14} /> Crew
+                </TabsTrigger>
+                <TabsTrigger value="route" className="flex-1 gap-1">
+                  <Map size={14} /> Route
+                </TabsTrigger>
+                <TabsTrigger value="chat" className="flex-1 gap-1">
+                  <MessageCircle size={14} /> Chat
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Crew tab */}
+              <TabsContent value="crew" className="mt-4 space-y-3">
+                {myGroup.members.map((m) => (
+                  <div
+                    key={m.user_id}
+                    className="flex items-center gap-3 rounded-lg border border-border p-3"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-medium">
+                      {m.avatar_url ? (
+                        <img
+                          src={m.avatar_url}
+                          alt=""
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        getInitials(m.full_name)
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {m.full_name ?? "Runner"}
+                        {m.user_id === currentUserId && (
+                          <span className="ml-1 text-xs text-muted-foreground">(you)</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </TabsContent>
+
+              {/* Route tab */}
+              <TabsContent value="route" className="mt-4">
+                {myGroup.route ? (
+                  <RouteCard
+                    name={myGroup.route.name}
+                    distanceKm={myGroup.route.distance_km}
+                    meetingPoint={myGroup.route.meeting_point}
+                    postRunCafe={myGroup.route.post_run_cafe}
+                    waypoints={myGroup.route.waypoints}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center">
+                    Route details coming soon.
+                  </p>
+                )}
+              </TabsContent>
+
+              {/* Chat tab */}
+              <TabsContent value="chat" className="mt-4">
+                {currentUserId ? (
+                  <GroupChat groupId={myGroup.group_id} currentUserId={currentUserId} />
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center">Loading chat…</p>
+                )}
+              </TabsContent>
+            </Tabs>
+
+            {/* Cancel button — also available post-approval */}
+            <div className="text-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => setShowCancelDialog(true)}
+              >
+                <X size={14} className="mr-1" />
+                Cancel booking
+              </Button>
+            </div>
+          </div>
         ) : (
-          <>
-            <h1 className="font-serif text-2xl">Your crew is being assembled...</h1>
+          /* ── PRE-APPROVAL VIEW ── */
+          <div className="text-center">
+            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
+              <Clock size={24} className="text-primary" />
+            </div>
+            <h1 className="font-serif text-2xl">Your crew is being assembled…</h1>
             <p className="mt-3 text-sm text-muted-foreground">
               Groups are matched and revealed 48 hours before the run.
             </p>
@@ -171,10 +281,9 @@ const MyRun = () => {
             </div>
 
             <p className="mt-10 text-sm text-muted-foreground">
-              We'll email you the moment your crew is matched.
+              We'll notify you the moment your crew is matched.
             </p>
 
-            {/* Cancel button */}
             <Button
               variant="ghost"
               size="sm"
@@ -184,7 +293,7 @@ const MyRun = () => {
               <X size={14} className="mr-1" />
               Cancel booking
             </Button>
-          </>
+          </div>
         )}
       </motion.div>
 
@@ -197,24 +306,18 @@ const MyRun = () => {
               {isWithin48Hours ? (
                 <>
                   <span className="block">
-                    Your run starts in less than 48 hours. A cancellation fee of{" "}
-                    <strong>{cancellationFeeDisplay}</strong> will be applied.
+                    Your run starts in less than 48 hours. A £5.00 cancellation fee will be applied.
                   </span>
                   <span className="block">
-                    You will be refunded <strong>{partialRefundDisplay}</strong>. Please allow
-                    5–10 business days for the refund to process.
+                    You will be refunded {partialRefundDisplay}.
                   </span>
                 </>
               ) : (
-                <>
-                  <span className="block">
-                    You will receive a full refund of <strong>{fullRefundDisplay}</strong>.
-                  </span>
-                  <span className="block">
-                    Please allow 5–10 business days for the refund to process.
-                  </span>
-                </>
+                <span className="block">
+                  You will receive a full refund of {fullRefundDisplay}.
+                </span>
               )}
+              <span className="block">Please allow 5–10 business days for the refund.</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -224,7 +327,7 @@ const MyRun = () => {
               disabled={isCancelling}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isCancelling ? "Cancelling..." : "Yes, cancel"}
+              {isCancelling ? "Cancelling…" : "Yes, cancel"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
