@@ -28,7 +28,9 @@ const Profile = () => {
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
       const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       return data;
@@ -38,7 +40,9 @@ const Profile = () => {
   const { data: bookings } = useQuery({
     queryKey: ["my-bookings"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return [];
       const { data } = await supabase
         .from("bookings")
@@ -56,7 +60,12 @@ const Profile = () => {
   };
 
   const initials = profile?.full_name
-    ? profile.full_name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+    ? profile.full_name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
     : "?";
 
   const interests = (profile?.personality_answers as any)?.interests || [];
@@ -72,14 +81,19 @@ const Profile = () => {
           <h1 className="mt-4 font-serif text-2xl">{profile?.full_name || "Your Profile"}</h1>
           <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin size={13} />
-            <span>{profile?.location_city || "Unknown"}{profile?.location_area ? `, ${profile.location_area}` : ""}</span>
+            <span>
+              {profile?.location_city || "Unknown"}
+              {profile?.location_area ? `, ${profile.location_area}` : ""}
+            </span>
           </div>
         </div>
 
         {/* Interests */}
         {interests.length > 0 && (
           <div className="mt-8">
-            <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider font-sans">Interests</h2>
+            <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider font-sans">
+              Interests
+            </h2>
             <div className="flex flex-wrap gap-2">
               {interests.map((interest: string) => (
                 <span
@@ -92,35 +106,6 @@ const Profile = () => {
             </div>
           </div>
         )}
-
-        {/* My Bookings */}
-        <div className="mt-8">
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wider font-sans">My Bookings</h2>
-          {bookings && bookings.length > 0 ? (
-            <div className="space-y-3">
-              {bookings.map((booking: any) => {
-                const rd = booking.run_dates;
-                if (!rd) return null;
-                const { display, time } = formatRunDate(rd.date, rd.time);
-                return (
-                  <div key={booking.id} className="rounded-xl border border-border bg-card p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground">{display}</p>
-                        <p className="text-sm text-muted-foreground">{time} · {rd.meeting_point}</p>
-                      </div>
-                      <span className="rounded-full bg-accent/20 px-3 py-1 text-xs font-medium text-accent">
-                        Confirmed
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No bookings yet.</p>
-          )}
-        </div>
 
         {/* Account Actions */}
         <div className="mt-12 space-y-3">
@@ -140,10 +125,7 @@ const Profile = () => {
             <LogOut size={18} />
             Sign out
           </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 py-6 text-destructive hover:text-destructive"
-          >
+          <Button variant="ghost" className="w-full justify-start gap-3 py-6 text-destructive hover:text-destructive">
             <Trash2 size={18} />
             Delete account
           </Button>
