@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { seedTestData, clearTestData } from "@/hooks/use-seed-test-data";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, Trash2, UserPlus, BellOff, Zap, CheckCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,10 @@ const Groups = () => {
   const [addMemberGroupId, setAddMemberGroupId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [activeRunDate, setActiveRunDate] = useState<string>("");
+  const [devToolsOpen, setDevToolsOpen] = useState(false);
+  const [seedLog, setSeedLog] = useState<string[]>([]);
+  const [seedRunning, setSeedRunning] = useState(false);
+  const [clearRunning, setClearRunning] = useState(false);
 
   // ── Queries ────────────────────────────────────────────
   const { data: runDates } = useQuery({
@@ -558,6 +563,97 @@ const Groups = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* ── Developer Tools ───────────────────────────────── */}
+      <div className="mt-10 border-t border-dashed border-border pt-6">
+        <button
+          type="button"
+          onClick={() => setDevToolsOpen((v) => !v)}
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <span className="font-mono">{devToolsOpen ? "▾" : "▸"}</span>
+          Developer Tools
+        </button>
+
+        {devToolsOpen && (
+          <div className="mt-4 rounded-sm border border-dashed border-destructive/40 bg-destructive/5 p-5 space-y-4">
+            <div>
+              <p className="text-xs font-semibold text-destructive uppercase tracking-wider">
+                ⚠ Dev Only — Do Not Use in Production
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Generates 50 test accounts (aged 18–40) and books them onto the next
+                upcoming run date. Test accounts use emails ending in{" "}
+                <code className="font-mono">@crew-test.dev</code> and can be fully
+                removed with "Clear Test Data". A run date must exist before seeding.
+              </p>
+            </div>
+
+            {!activeRunDate && (
+              <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                Select a run date above before seeding, or the seeder will use the
+                next available upcoming run date automatically.
+              </p>
+            )}
+
+            <div className="flex gap-3 flex-wrap">
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={seedRunning || clearRunning}
+                onClick={async () => {
+                  setSeedRunning(true);
+                  setSeedLog([]);
+                  const result = await seedTestData((msg) =>
+                    setSeedLog((prev) => [...prev, msg])
+                  );
+                  if (!result.success) {
+                    setSeedLog((prev) => [...prev, `✗ Error: ${result.error}`]);
+                    toast.error("Seed failed — see log below");
+                  } else {
+                    toast.success("50 test users seeded successfully");
+                  }
+                  setSeedRunning(false);
+                }}
+              >
+                {seedRunning ? "Seeding…" : "Seed 50 Test Users"}
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                disabled={seedRunning || clearRunning}
+                onClick={async () => {
+                  setClearRunning(true);
+                  setSeedLog([]);
+                  const result = await clearTestData((msg) =>
+                    setSeedLog((prev) => [...prev, msg])
+                  );
+                  if (!result.success) {
+                    setSeedLog((prev) => [...prev, `✗ Error: ${result.error}`]);
+                    toast.error("Clear failed — see log below");
+                  } else {
+                    queryClient.invalidateQueries({ queryKey: ["admin-groups"] });
+                    toast.success("Test data cleared");
+                  }
+                  setClearRunning(false);
+                }}
+              >
+                {clearRunning ? "Clearing…" : "Clear Test Data"}
+              </Button>
+            </div>
+
+            {seedLog.length > 0 && (
+              <div className="rounded-sm bg-black/80 text-green-400 font-mono text-xs p-3 space-y-0.5 max-h-40 overflow-y-auto">
+                {seedLog.map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
