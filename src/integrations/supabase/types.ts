@@ -47,6 +47,13 @@ export type Database = {
             referencedRelation: "run_dates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bookings_user_id_profiles_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       group_messages: {
