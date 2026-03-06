@@ -25,7 +25,9 @@ const HeroSection = () => {
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [menuOpen]);
 
   return (
@@ -38,7 +40,10 @@ const HeroSection = () => {
           borderBottom: scrolled ? "1px solid #000" : "1px solid transparent",
         }}
       >
-        <a href="#" className={`font-serif text-2xl transition-colors duration-300 ${scrolled ? "text-black" : "text-white"}`}>
+        <a
+          href="#"
+          className={`font-serif text-2xl transition-colors duration-300 ${scrolled ? "text-black" : "text-white"}`}
+        >
           CREW
         </a>
         <div className="flex items-center gap-4">
@@ -95,7 +100,10 @@ const HeroSection = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.12, duration: 0.4 }}
-                  onClick={() => { setMenuOpen(false); navigate(item.path); }}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate(item.path);
+                  }}
                   className="font-serif text-4xl text-white"
                 >
                   {item.label}
@@ -118,7 +126,7 @@ const HeroSection = () => {
       <section ref={heroRef} className="relative w-full h-[100svh] overflow-hidden">
         <picture>
           <img
-            src="https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=1600&q=80"
+            src="https://qnccnopiezwwvjqtwiyz.supabase.co/storage/v1/object/public/landingpage-images//dclassic 2025-09-08 121618.304.jpeg"
             alt="Runners in Battersea Park at dawn"
             className="absolute inset-0 w-full h-full object-cover object-center"
             loading="eager"
