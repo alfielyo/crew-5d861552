@@ -74,8 +74,7 @@ const ConversionSection = () => {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6 }}
             className="font-serif text-4xl md:text-6xl text-white mb-4">
-
-
+            The weekend just got a whole lot better...
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

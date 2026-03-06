@@ -151,8 +151,7 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.25 }}
             className="font-serif text-5xl md:text-7xl leading-[1.05] mt-1 lg:text-6xl mx-0 my-0 bg-inherit text-primary-foreground">
-
-
+            The Social Fitness App
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

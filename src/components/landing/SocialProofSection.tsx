@@ -92,8 +92,7 @@ const SocialProofSection = () => {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6 }}
           className="font-serif text-4xl md:text-5xl text-black mb-12 md:mb-16">
-
-
+          Don't take our word for it...
         </motion.h2>
         <div className="flex gap-6 overflow-x-auto pb-4 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible snap-x snap-mandatory">
           {testimonials.map((t, i) =>
