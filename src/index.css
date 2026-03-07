@@ -45,7 +45,7 @@
     --input: 0 0% 0%;
     --ring: 0 0% 0%;
 
-    --radius: 1px;
+    --radius: 1.25rem;
 
     --warning: 38 72% 52%;
     --admin: 268 30% 51%;
@@ -120,7 +120,7 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 0 0% 100%;
     --sidebar-ring: 0 0% 100%;
-    --radius: 1px;
+    --radius: 1.25rem;
     --shadow-2xs: none;
     --shadow-xs: none;
     --shadow-xl: none;
