@@ -84,10 +84,10 @@
       Noto Color Emoji;
     --font-serif: "Source Serif Pro", ui-serif, Georgia, Cambria, Times New Roman, Times, serif;
     --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-    --shadow-sm: 3px 3px 0px 0px #ffffff;
-    --shadow: 5px 5px 0px 0px #ffffff;
-    --shadow-md: 8px 8px 0px 0px #ffffff;
-    --shadow-lg: 12px 12px 0px 0px #ffffff;
+    --shadow-sm: none;
+    --shadow: none;
+    --shadow-md: none;
+    --shadow-lg: none;
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
     --card: 0 0% 0%;
