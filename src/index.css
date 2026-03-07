@@ -120,11 +120,11 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 0 0% 100%;
     --sidebar-ring: 0 0% 100%;
-    --radius: 1rem;
-    --shadow-2xs: 1px 1px 0px 0px #ffffff;
-    --shadow-xs: 2px 2px 0px 0px #ffffff;
-    --shadow-xl: 16px 16px 0px 0px #ffffff;
-    --shadow-2xl: 24px 24px 0px 0px #ffffff;
+    --radius: 1px;
+    --shadow-2xs: none;
+    --shadow-xs: none;
+    --shadow-xl: none;
+    --shadow-2xl: none;
   }
 }
 
